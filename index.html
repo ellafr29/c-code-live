@@ -1,0 +1,1789 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Belajar Algoritma C</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { box-sizing: border-box; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    .font-sans-main { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .code-editor { background: linear-gradient(135deg, #1e1e2e 0%, #2d2d3f 100%); border: 1px solid #3d3d5c; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    @keyframes checkmark { 0% { transform: scale(0) rotate(-45deg); } 50% { transform: scale(1.2); } 100% { transform: scale(1) rotate(0); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); } 50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); } }
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) rotateX(90deg); } 100% { opacity: 1; transform: scale(1) rotateX(0); } }
+    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    .animate-slide-in { animation: slideIn 0.3s ease-out; }
+    .animate-slide-in-up { animation: slideInUp 0.5s ease-out; }
+    .animate-pulse { animation: pulse 0.6s ease-in-out; }
+    .animate-bounce { animation: bounce 0.6s ease-in-out; }
+    .animate-checkmark { animation: checkmark 0.5s ease-out; }
+    .animate-shake { animation: shake 0.4s ease-in-out; }
+    .animate-glow { animation: glow 2s ease-in-out infinite; }
+    .animate-pop-in { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .output-box { background: #0d1117; border: 1px solid #30363d; }
+    .quiz-option { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
+    .quiz-option:hover:not(.disabled) { transform: translateX(4px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
+    .quiz-option.selected { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-color: #7c3aed; transform: scale(1.02); }
+    .quiz-option.correct { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #10b981; animation: popIn 0.4s ease-out; }
+    .quiz-option.incorrect { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-color: #ef4444; animation: shake 0.3s ease-in-out; }
+    .quiz-option.disabled { pointer-events: none; opacity: 0.7; }
+    .quiz-card { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .progress-indicator { transition: all 0.3s ease-out; }
+    .score-badge { font-size: 3rem; animation: bounce 0.6s ease-in-out infinite; }
+  </style>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full font-sans-main bg-slate-900 text-slate-100 overflow-auto">
+  <div id="app" class="h-full w-full flex flex-col">
+   <header class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+     <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center animate-bounce">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+       </svg>
+      </div>
+      <h1 class="text-xl font-bold text-white">Belajar Algoritma C</h1>
+     </div>
+     <div class="text-right">
+      <p id="progress-text" class="text-white font-bold">0/12</p>
+     </div>
+    </div>
+   </header>
+   <main class="flex-1 overflow-auto">
+    <div class="max-w-7xl mx-auto p-6"><!-- Menu Pilih Topik -->
+     <div id="menu-screen" class="animate-fade-in">
+      <h2 class="text-3xl font-bold text-white mb-8">Pilih Topik Pembelajaran</h2><!-- Section 1: Dasar C -->
+      <div class="mb-8">
+       <h3 class="text-lg font-bold text-indigo-300 mb-4">📖 Dasar Bahasa C</h3>
+       <div class="grid md:grid-cols-2 gap-6 mb-8"><button onclick="openLesson('struktur')" class="group">
+         <div class="bg-gradient-to-br from-rose-900 to-rose-800 rounded-2xl p-8 border-2 border-rose-600 hover:border-rose-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           🏗️
+          </div>
+          <h3 class="text-2xl font-bold text-rose-200 mb-2">Struktur Bahasa C</h3>
+          <p class="text-slate-300 mb-4">Pelajari struktur dasar program C</p>
+          <div class="inline-block px-4 py-2 bg-rose-600 group-hover:bg-rose-500 rounded-lg text-sm font-medium transition-colors animate-fade-in">
+           Mulai Belajar →
+          </div>
+         </div></button> <button onclick="openLesson('sintaks')" class="group">
+         <div class="bg-gradient-to-br from-fuchsia-900 to-fuchsia-800 rounded-2xl p-8 border-2 border-fuchsia-600 hover:border-fuchsia-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           ✍️
+          </div>
+          <h3 class="text-2xl font-bold text-fuchsia-200 mb-2">Sintaks &amp; Variabel</h3>
+          <p class="text-slate-300 mb-4">Belajar sintaks dan cara deklarasi variabel</p>
+          <div class="inline-block px-4 py-2 bg-fuchsia-600 group-hover:bg-fuchsia-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button> <button onclick="openLesson('tipe_data')" class="group">
+         <div class="bg-gradient-to-br from-violet-900 to-violet-800 rounded-2xl p-8 border-2 border-violet-600 hover:border-violet-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           🔢
+          </div>
+          <h3 class="text-2xl font-bold text-violet-200 mb-2">Tipe Data</h3>
+          <p class="text-slate-300 mb-4">Pelajari berbagai tipe data dalam C</p>
+          <div class="inline-block px-4 py-2 bg-violet-600 group-hover:bg-violet-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button> <button onclick="openLesson('input_output')" class="group">
+         <div class="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 border-2 border-blue-600 hover:border-blue-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           📤
+          </div>
+          <h3 class="text-2xl font-bold text-blue-200 mb-2">Input &amp; Output</h3>
+          <p class="text-slate-300 mb-4">Pelajari printf() untuk menampilkan data</p>
+          <div class="inline-block px-4 py-2 bg-blue-600 group-hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button>
+       </div>
+      </div><!-- Section 2: Kontrol Alur -->
+      <div class="mb-8">
+       <h3 class="text-lg font-bold text-indigo-300 mb-4">🔄 Kontrol Alur Program</h3>
+       <div class="grid md:grid-cols-2 gap-6 mb-8"><button onclick="openLesson('if_else')" class="group">
+         <div class="bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-8 border-2 border-purple-600 hover:border-purple-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           🔀
+          </div>
+          <h3 class="text-2xl font-bold text-purple-200 mb-2">If-Else</h3>
+          <p class="text-slate-300 mb-4">Membuat keputusan dengan if-else</p>
+          <div class="inline-block px-4 py-2 bg-purple-600 group-hover:bg-purple-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button> <button onclick="openLesson('switch')" class="group">
+         <div class="bg-gradient-to-br from-pink-900 to-pink-800 rounded-2xl p-8 border-2 border-pink-600 hover:border-pink-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           🎚️
+          </div>
+          <h3 class="text-2xl font-bold text-pink-200 mb-2">Switch Case</h3>
+          <p class="text-slate-300 mb-4">Pernyataan switch untuk pilihan ganda</p>
+          <div class="inline-block px-4 py-2 bg-pink-600 group-hover:bg-pink-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button> <button onclick="openLesson('for_loop')" class="group">
+         <div class="bg-gradient-to-br from-green-900 to-green-800 rounded-2xl p-8 border-2 border-green-600 hover:border-green-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           🔁
+          </div>
+          <h3 class="text-2xl font-bold text-green-200 mb-2">For Loop</h3>
+          <p class="text-slate-300 mb-4">Perulangan dengan for loop</p>
+          <div class="inline-block px-4 py-2 bg-green-600 group-hover:bg-green-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button> <button onclick="openLesson('while_loop')" class="group">
+         <div class="bg-gradient-to-br from-cyan-900 to-cyan-800 rounded-2xl p-8 border-2 border-cyan-600 hover:border-cyan-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           🔄
+          </div>
+          <h3 class="text-2xl font-bold text-cyan-200 mb-2">While Loop</h3>
+          <p class="text-slate-300 mb-4">Perulangan dengan while loop</p>
+          <div class="inline-block px-4 py-2 bg-cyan-600 group-hover:bg-cyan-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button>
+       </div>
+      </div><!-- Section 3: Struktur Data -->
+      <div class="mb-8">
+       <h3 class="text-lg font-bold text-indigo-300 mb-4">📚 Struktur Data</h3>
+       <div class="grid md:grid-cols-2 gap-6 mb-8"><button onclick="openLesson('array')" class="group">
+         <div class="bg-gradient-to-br from-orange-900 to-orange-800 rounded-2xl p-8 border-2 border-orange-600 hover:border-orange-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           📦
+          </div>
+          <h3 class="text-2xl font-bold text-orange-200 mb-2">Array</h3>
+          <p class="text-slate-300 mb-4">Deklarasi dan akses data dalam array</p>
+          <div class="inline-block px-4 py-2 bg-orange-600 group-hover:bg-orange-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button> <button onclick="openLesson('nested_loop')" class="group">
+         <div class="bg-gradient-to-br from-indigo-900 to-indigo-800 rounded-2xl p-8 border-2 border-indigo-600 hover:border-indigo-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           ⚙️
+          </div>
+          <h3 class="text-2xl font-bold text-indigo-200 mb-2">Nested Loop</h3>
+          <p class="text-slate-300 mb-4">Loop dalam loop untuk pattern</p>
+          <div class="inline-block px-4 py-2 bg-indigo-600 group-hover:bg-indigo-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Belajar →
+          </div>
+         </div></button>
+       </div>
+      </div><!-- Section 4: Tantangan & Kuis -->
+      <div class="mb-8">
+       <h3 class="text-lg font-bold text-indigo-300 mb-4">🎯 Tantangan &amp; Kuis</h3>
+       <div class="grid md:grid-cols-2 gap-6 mb-8"><button onclick="openChallenge()" class="group">
+         <div class="bg-gradient-to-br from-yellow-900 to-yellow-800 rounded-2xl p-8 border-2 border-yellow-600 hover:border-yellow-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           🏆
+          </div>
+          <h3 class="text-2xl font-bold text-yellow-200 mb-2">Tantangan Koding</h3>
+          <p class="text-slate-300 mb-4">Buat program lengkap menggabungkan semua konsep</p>
+          <div class="inline-block px-4 py-2 bg-yellow-600 group-hover:bg-yellow-500 rounded-lg text-sm font-medium transition-colors">
+           Buka Tantangan →
+          </div>
+         </div></button> <button onclick="openQuiz()" class="group">
+         <div class="bg-gradient-to-br from-red-900 to-red-800 rounded-2xl p-8 border-2 border-red-600 hover:border-red-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           📝
+          </div>
+          <h3 class="text-2xl font-bold text-red-200 mb-2">Kuis (20 Soal)</h3>
+          <p class="text-slate-300 mb-4">Tes pemahaman dengan 20 soal pilihan ganda</p>
+          <div class="inline-block px-4 py-2 bg-red-600 group-hover:bg-red-500 rounded-lg text-sm font-medium transition-colors">
+           Mulai Kuis →
+          </div>
+         </div></button>
+       </div>
+      </div>
+     </div><!-- Halaman Pembelajaran -->
+     <div id="learning-screen" class="hidden animate-fade-in">
+      <div class="flex items-center justify-between mb-6">
+       <h2 id="lesson-title" class="text-3xl font-bold text-white"></h2><button onclick="backToMenu()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"> ← Kembali </button>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-6 mb-6"><!-- Penjelasan Materi -->
+       <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+        <h3 class="text-xl font-bold text-indigo-300 mb-4">📚 Penjelasan Materi</h3>
+        <div id="theory-content" class="text-slate-300 text-sm space-y-4 leading-relaxed max-h-96 overflow-y-auto"></div>
+       </div><!-- Contoh Kode -->
+       <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+        <h3 class="text-xl font-bold text-green-300 mb-4">💡 Contoh Kode</h3>
+        <div class="code-editor rounded-lg overflow-hidden mb-3">
+         <div class="px-4 py-2 bg-slate-700 text-xs text-slate-400 border-b border-slate-600">
+          example.c
+         </div>
+         <pre id="example-code" class="p-4 text-xs font-mono-code text-slate-100 overflow-x-auto"></pre>
+        </div>
+        <div class="bg-slate-700/50 rounded-lg p-3">
+         <p class="text-xs text-slate-400 mb-2">Output:</p>
+         <div id="example-output" class="text-xs font-mono-code text-green-400"></div>
+        </div>
+       </div>
+      </div><!-- Praktik -->
+      <div class="grid lg:grid-cols-3 gap-6">
+       <div class="lg:col-span-2">
+        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 mb-6">
+         <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-yellow-300">💻 Praktik Langsung</h3><button onclick="resetEditor()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors">🔄 Reset</button>
+         </div>
+         <div id="practice-task" class="bg-slate-700/50 rounded-lg p-4 mb-4 text-sm text-slate-300"></div>
+         <div class="code-editor rounded-lg overflow-hidden mb-4">
+          <div class="flex items-center gap-2 px-4 py-2 bg-slate-700 border-b border-slate-600"><span class="w-2 h-2 rounded-full bg-red-500"></span> <span class="w-2 h-2 rounded-full bg-yellow-500"></span> <span class="w-2 h-2 rounded-full bg-green-500"></span> <span class="ml-2 text-xs text-slate-400">main.c</span>
+          </div>
+          <div class="flex">
+           <div id="line-numbers" class="py-4 px-3 text-slate-500 text-xs font-mono-code text-right select-none border-r border-slate-700 bg-slate-700/30 min-w-12">
+            1
+           </div><textarea id="practice-editor" class="flex-1 bg-transparent text-slate-100 font-mono-code text-sm p-4 outline-none resize-none min-h-[250px]" spellcheck="false" placeholder="#include <stdio.h>
+
+int main() {
+    // Tulis kode di sini
+    
+    
+    return 0;
+}" oninput="updateLineNumbers()"></textarea>
+          </div>
+         </div>
+         <div class="flex gap-3"><button onclick="runPractice()" class="flex-1 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors text-white flex items-center justify-center gap-2">
+           <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20">
+            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+           </svg> Jalankan </button>
+         </div>
+        </div><!-- Output -->
+        <div class="grid md:grid-cols-2 gap-4">
+         <div>
+          <h4 class="font-bold text-sm mb-2">📤 Output Program</h4>
+          <div class="output-box rounded-lg p-4 min-h-[120px] text-xs font-mono-code">
+           <div id="practice-output" class="text-slate-400">
+            Tekan "Jalankan" untuk melihat output...
+           </div>
+          </div>
+         </div>
+         <div>
+          <h4 class="font-bold text-sm mb-2">✅ Output Diharapkan</h4>
+          <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 min-h-[120px] text-xs font-mono-code">
+           <div id="practice-expected" class="text-green-400"></div>
+          </div>
+         </div>
+        </div>
+       </div><!-- Status Panel -->
+       <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 h-fit">
+        <h4 class="font-bold text-sm mb-4">📊 Status</h4>
+        <div id="status-panel" class="space-y-3 text-sm">
+         <p class="text-slate-400">Mulai praktik untuk melihat status...</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Halaman Tantangan -->
+     <div id="challenge-screen" class="hidden animate-fade-in">
+      <div class="flex items-center justify-between mb-6">
+       <h2 class="text-3xl font-bold text-white">🏆 Tantangan Koding</h2><button onclick="backToMenu()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"> ← Kembali </button>
+      </div>
+      <div class="grid lg:grid-cols-3 gap-6">
+       <div class="lg:col-span-2">
+        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 mb-6">
+         <h3 class="text-xl font-bold text-yellow-300 mb-4">📝 Deskripsi Tantangan</h3>
+         <div id="challenge-desc" class="bg-slate-700/50 rounded-lg p-4 text-slate-300 text-sm leading-relaxed mb-4"></div>
+         <div class="code-editor rounded-lg overflow-hidden mb-4">
+          <div class="flex items-center gap-2 px-4 py-2 bg-slate-700 border-b border-slate-600"><span class="w-2 h-2 rounded-full bg-red-500"></span> <span class="w-2 h-2 rounded-full bg-yellow-500"></span> <span class="w-2 h-2 rounded-full bg-green-500"></span> <span class="ml-2 text-xs text-slate-400">challenge.c</span>
+          </div>
+          <div class="flex">
+           <div id="challenge-line-numbers" class="py-4 px-3 text-slate-500 text-xs font-mono-code text-right select-none border-r border-slate-700 bg-slate-700/30 min-w-12">
+            1
+           </div><textarea id="challenge-editor" class="flex-1 bg-transparent text-slate-100 font-mono-code text-sm p-4 outline-none resize-none min-h-[350px]" spellcheck="false" placeholder="#include <stdio.h>
+
+int main() {
+    // Selesaikan tantangan di sini
+    
+    
+    
+    return 0;
+}" oninput="updateChallengeLineNumbers()"></textarea>
+          </div>
+         </div>
+         <div class="flex gap-3"><button onclick="runChallenge()" class="flex-1 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors text-white"> Jalankan &amp; Periksa </button> <button onclick="resetChallengeEditor()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Reset</button>
+         </div>
+        </div><!-- Output Tantangan -->
+        <div class="grid md:grid-cols-2 gap-4">
+         <div>
+          <h4 class="font-bold text-sm mb-2">📤 Output Program</h4>
+          <div class="output-box rounded-lg p-4 min-h-[150px] text-xs font-mono-code">
+           <div id="challenge-output" class="text-slate-400">
+            Tekan "Jalankan" untuk melihat output...
+           </div>
+          </div>
+         </div>
+         <div>
+          <h4 class="font-bold text-sm mb-2">✅ Output Diharapkan</h4>
+          <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 min-h-[150px] text-xs font-mono-code">
+           <div id="challenge-expected" class="text-green-400"></div>
+          </div>
+         </div>
+        </div>
+       </div><!-- Challenge Status -->
+       <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 h-fit">
+        <h4 class="font-bold text-sm mb-4">🎯 Petunjuk</h4>
+        <div id="challenge-hints" class="text-xs text-slate-300 space-y-2"></div>
+       </div>
+      </div>
+     </div><!-- Quiz Screen -->
+     <div id="quiz-screen" class="hidden animate-fade-in">
+      <div class="flex items-center justify-between mb-6">
+       <h2 class="text-3xl font-bold text-white">📝 Kuis (20 Soal)</h2><button onclick="backToMenu()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"> ← Kembali </button>
+      </div><!-- Nama Siswa -->
+      <div id="student-input-screen" class="animate-fade-in">
+       <div class="max-w-md mx-auto">
+        <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+         <h3 class="text-2xl font-bold text-white mb-6">Masukkan Nama Anda</h3><input id="student-name-input" type="text" placeholder="Nama Lengkap" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 mb-4 focus:outline-none focus:border-indigo-500"> <button onclick="startQuiz()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold transition-colors text-white"> Mulai Kuis → </button>
+        </div>
+       </div>
+      </div><!-- Soal Kuis -->
+      <div id="quiz-content-screen" class="hidden">
+       <div class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+         <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 mb-6 quiz-card animate-slide-in-up">
+          <div class="flex items-center justify-between mb-6">
+           <div>
+            <h3 id="quiz-question-num" class="text-lg font-bold text-indigo-300 mb-1">Soal 1 / 20</h3>
+            <div class="w-96 h-2 bg-slate-700 rounded-full overflow-hidden">
+             <div id="quiz-progress-bar-fill" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500" style="width: 5%"></div>
+            </div>
+           </div>
+           <div class="px-4 py-2 bg-indigo-600/20 border border-indigo-600 rounded-lg"><span id="quiz-score-display" class="text-indigo-300 font-bold">0</span><span class="text-slate-400">/20</span>
+           </div>
+          </div>
+          <div class="bg-slate-700/50 rounded-lg p-6 mb-8 border-l-4 border-indigo-500">
+           <p id="quiz-question" class="text-slate-200 text-lg leading-relaxed font-medium"></p>
+          </div>
+          <div id="quiz-options" class="space-y-3 mb-8"></div>
+          <div class="flex gap-3"><button onclick="previousQuizQuestion()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all" id="btn-prev"> ← Sebelumnya </button> <button onclick="nextQuizQuestion()" class="flex-1 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-lg font-medium transition-all text-white" id="btn-next"> Selanjutnya → </button>
+          </div>
+         </div>
+        </div><!-- Quiz Progress -->
+        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 h-fit sticky top-24">
+         <h4 class="font-bold text-sm mb-4 text-indigo-300">📊 Progress Kuis</h4>
+         <div class="mb-6">
+          <div class="text-center mb-3">
+           <div class="text-3xl font-bold text-indigo-400" id="quiz-progress-percent">
+            0%
+           </div>
+           <p id="quiz-progress-text" class="text-xs text-slate-400 mt-1">Soal 1 / 20</p>
+          </div>
+          <div class="bg-slate-700 rounded-full h-3 overflow-hidden">
+           <div id="quiz-progress-fill-mini" class="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500" style="width: 5%"></div>
+          </div>
+         </div>
+         <div class="bg-slate-700/50 rounded-lg p-4 mb-4">
+          <p class="text-slate-400 text-xs mb-3">Jawaban Soal:</p>
+          <div id="quiz-indicator-container" class="grid grid-cols-5 gap-2"></div>
+         </div>
+         <div class="bg-indigo-900/30 border border-indigo-600 rounded-lg p-3 text-xs">
+          <p class="text-slate-400 mb-2">Total Terjawab:</p>
+          <p id="quiz-answered-count" class="text-indigo-300 font-bold text-lg">0/20</p>
+         </div>
+        </div>
+       </div>
+      </div><!-- Hasil Kuis -->
+      <div id="quiz-result-screen" class="hidden">
+       <div class="max-w-2xl mx-auto">
+        <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 text-center animate-pop-in">
+         <p class="text-7xl mb-6 score-badge" id="result-emoji">🎉</p>
+         <h3 class="text-3xl font-bold text-white mb-2">Kuis Selesai!</h3>
+         <p id="student-name-display" class="text-slate-300 mb-8 text-lg"></p>
+         <div class="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border border-indigo-600 rounded-2xl p-8 mb-8">
+          <p class="text-slate-300 mb-3">Nilai Akhir</p>
+          <p id="result-score" class="text-6xl font-bold text-indigo-400 mb-3">0/20</p>
+          <div class="flex items-center justify-center gap-2">
+           <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div id="result-percentage-bar" class="h-full bg-gradient-to-r from-green-500 to-emerald-500" style="width: 0%"></div>
+           </div>
+           <p id="result-percentage" class="text-2xl font-bold text-indigo-300 min-w-16">0%</p>
+          </div>
+         </div>
+         <div id="result-details" class="text-left bg-slate-700/50 rounded-lg p-4 mb-6 text-sm text-slate-300 space-y-2 max-h-64 overflow-y-auto"></div><button onclick="backToMenu()" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold transition-colors text-white"> Kembali ke Menu </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div>
+  <script>
+    const lessons = {
+      struktur: {
+        title: '🏗️ Struktur Bahasa C',
+        theory: `
+          <h4 class="font-bold text-rose-300 mb-3">📋 Bagian-Bagian Program C</h4>
+          <p class="text-slate-300 text-sm mb-4">Setiap program C memiliki struktur dasar yang terdiri dari beberapa bagian penting. Memahami struktur ini adalah fondasi untuk membuat program C yang benar.</p>
+          
+          <h4 class="font-bold text-rose-300 mb-2 mt-4">1️⃣ Header/Library (#include)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Header adalah perintah untuk mengimpor library (perpustakaan) ke dalam program. Library berisi fungsi-fungsi siap pakai yang bisa kita gunakan.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📚 <span class="text-rose-400 font-bold">#include &lt;stdio.h&gt;</span> → Library untuk input/output (printf, scanf)</li>
+            <li>📚 <span class="text-rose-400 font-bold">#include &lt;math.h&gt;</span> → Library untuk operasi matematika (sqrt, pow, abs)</li>
+            <li>📚 <span class="text-rose-400 font-bold">#include &lt;string.h&gt;</span> → Library untuk operasi string</li>
+          </ul>
+          <p class="text-slate-300 text-xs bg-rose-900/30 p-2 rounded border border-rose-700 mt-2">💡 Angle bracket &lt; &gt; untuk library standar, tanda kutip untuk file lokal</p>
+          
+          <h4 class="font-bold text-rose-300 mb-2 mt-4">2️⃣ Fungsi Main (int main)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Main adalah fungsi utama di mana program mulai dijalankan. Setiap program C HARUS memiliki fungsi main sebagai entry point.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>🔹 <span class="text-rose-400 font-bold">int</span> → Tipe return (nilai yang dikembalikan fungsi)</li>
+            <li>🔹 <span class="text-rose-400 font-bold">main()</span> → Nama fungsi utama (selalu "main")</li>
+            <li>🔹 <span class="text-rose-400 font-bold">{ ... }</span> → Kurung kurawal untuk blok kode</li>
+          </ul>
+          
+          <h4 class="font-bold text-rose-300 mb-2 mt-4">3️⃣ Return Statement</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Return mengakhiri fungsi dan mengembalikan nilai. Return 0 menunjukkan program berhasil.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>✅ <span class="text-green-400 font-bold">return 0;</span> → Program berhasil (exit code 0)</li>
+            <li>❌ <span class="text-red-400 font-bold">return 1;</span> → Program gagal/error</li>
+          </ul>
+          
+          <h4 class="font-bold text-rose-300 mb-2 mt-4">4️⃣ Komentar</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Komentar adalah teks yang TIDAK dijalankan oleh kompiler, hanya untuk dokumentasi.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📝 <span class="text-rose-400 font-bold">// Komentar satu baris</span></li>
+            <li>📝 <span class="text-rose-400 font-bold">/* Komentar multi baris */</span></li>
+          </ul>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    printf("Halo, Dunia!\\n");
+    
+    return 0;
+}`,
+        exampleOutput: `Halo, Dunia!`,
+        practices: [
+          { task: 'Buat program C dasar dengan header stdio.h', expected: 'Halo', hints: '💡 #include <stdio.h>\n💡 int main() {\n💡   printf("Halo\\n");\n💡   return 0;\n💡 }' },
+          { task: 'Tampilkan 2 baris teks menggunakan printf dua kali', expected: 'Baris 1\nBaris 2', hints: '💡 printf("Baris 1\\n");\n💡 printf("Baris 2\\n");' },
+          { task: 'Buat program dengan komentar satu baris', expected: 'C adalah bahasa pemrograman', hints: '💡 // Ini adalah komentar\n💡 printf("C adalah bahasa pemrograman\\n");' },
+          { task: 'Buat program yang menampilkan nama Anda', expected: 'Nama: Andi', hints: '💡 printf("Nama: Andi\\n");' },
+          { task: 'Buat program dengan struktur lengkap C dan tampilkan "Program Mulai"', expected: 'Program Mulai', hints: '💡 Gunakan #include, main(), printf(), dan return' }
+        ]
+      },
+      sintaks: {
+        title: '✍️ Sintaks & Variabel',
+        theory: `
+          <h4 class="font-bold text-fuchsia-300 mb-3">🎯 Apa itu Variabel?</h4>
+          <p class="text-slate-300 text-sm mb-4">Variabel adalah tempat penyimpanan data di memori komputer. Seperti kotak yang menyimpan nilai, dapat kita baca dan ubah sesuai kebutuhan.</p>
+          
+          <h4 class="font-bold text-fuchsia-300 mb-2 mt-4">📋 Cara Deklarasi Variabel</h4>
+          <p class="text-slate-400 text-xs mb-2">Sintaks dasar: <span class="text-fuchsia-400 font-bold">tipe_data nama_variabel = nilai;</span></p>
+          <div class="text-slate-300 text-xs bg-fuchsia-900/30 p-2 rounded border border-fuchsia-700 mb-2">
+            <p class="font-bold">Contoh praktis:</p>
+            <ul class="mt-1 space-y-1 ml-2">
+              <li>✅ int umur = 20;</li>
+              <li>✅ float tinggi = 1.75;</li>
+              <li>✅ char huruf = 'A';</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-bold text-fuchsia-300 mb-2 mt-4">🏷️ Aturan Penamaan Variabel</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>✅ Boleh dimulai dengan huruf atau underscore: age, _age, Age123</li>
+            <li>✅ Boleh mengandung angka: umur2024, nilai123</li>
+            <li>❌ TIDAK boleh dimulai dengan angka: 1umur, 2nama</li>
+            <li>❌ TIDAK boleh mengandung spasi: umur saya, nama ku</li>
+            <li>❌ TIDAK boleh menggunakan simbol khusus: nama@, umur#</li>
+          </ul>
+          
+          <h4 class="font-bold text-fuchsia-300 mb-2 mt-4">🔄 Inisialisasi Variabel</h4>
+          <p class="text-slate-400 text-xs leading-relaxed">Inisialisasi adalah memberikan nilai awal saat deklarasi. Ini penting agar variabel tidak berisi nilai sampah dari memori.</p>
+          <div class="text-slate-300 text-xs bg-fuchsia-900/30 p-2 rounded border border-fuchsia-700">
+            <ul class="space-y-1 ml-2">
+              <li>int x = 5;  ← Deklarasi dan inisialisasi langsung</li>
+              <li>int y;  ← Hanya deklarasi (nilai tidak terdefinisi)</li>
+              <li>int z = 0;  ← Inisialisasi dengan nilai default 0</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-bold text-fuchsia-300 mb-2 mt-4">📝 Mengubah Nilai Variabel</h4>
+          <p class="text-slate-400 text-xs">Setelah deklarasi, kita bisa mengubah nilai variabel kapan saja:</p>
+          <div class="text-slate-300 text-xs bg-fuchsia-900/30 p-2 rounded border border-fuchsia-700">
+            <ul class="space-y-1 ml-2">
+              <li>int x = 10;  ← Nilai awal 10</li>
+              <li>x = 20;  ← Mengubah nilai menjadi 20</li>
+              <li>x = x + 5;  ← Tambah 5, sekarang nilai 25</li>
+            </ul>
+          </div>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    int umur = 20;
+    float tinggi = 1.75;
+    
+    printf("Umur: %d\\n", umur);
+    printf("Tinggi: %.2f\\n", tinggi);
+    
+    return 0;
+}`,
+        exampleOutput: `Umur: 20\nTinggi: 1.75`,
+        practices: [
+          { task: 'Deklarasikan variabel int x = 5 dan tampilkan nilainya', expected: '5', hints: '💡 int x = 5;\n💡 printf("%d\\n", x);' },
+          { task: 'Buat variabel char untuk menyimpan satu karakter "X"', expected: 'X', hints: '💡 char c = \'X\';\n💡 printf("%c\\n", c);' },
+          { task: 'Hitung penjumlahan dua variabel: a=10, b=20', expected: '30', hints: '💡 int a = 10, b = 20;\n💡 printf("%d\\n", a + b);' },
+          { task: 'Deklarasikan 3 variabel int dengan nilai berbeda', expected: '10\n20\n30', hints: '💡 int x = 10, y = 20, z = 30;\n💡 printf("%d\\n%d\\n%d\\n", x, y, z);' },
+          { task: 'Buat variabel float untuk harga barang: 50000.00', expected: '50000.00', hints: '💡 float harga = 50000.00;\n💡 printf("%.2f\\n", harga);' }
+        ]
+      },
+      tipe_data: {
+        title: '🔢 Tipe Data',
+        theory: `
+          <h4 class="font-bold text-violet-300 mb-3">📚 Macam-Macam Tipe Data</h4>
+          <p class="text-slate-300 text-sm mb-4">Tipe data menentukan jenis dan ukuran nilai yang dapat disimpan dalam variabel. Setiap tipe data memiliki kapasitas dan kegunaan berbeda.</p>
+          
+          <h4 class="font-bold text-violet-300 mb-2 mt-4">1️⃣ Integer (int)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Digunakan untuk menyimpan bilangan bulat (tanpa desimal). Ukuran biasanya 4 byte = 32 bit.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📊 Range: -2,147,483,648 hingga 2,147,483,647</li>
+            <li>📝 Contoh: int umur = 25;</li>
+            <li>📝 Format specifier: %d</li>
+          </ul>
+          
+          <h4 class="font-bold text-violet-300 mb-2 mt-4">2️⃣ Float (Floating Point)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Digunakan untuk bilangan desimal (dengan koma). Presisi sekitar 6-7 digit desimal.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📊 Range: ±3.4 × 10⁻³⁸ hingga ±3.4 × 10³⁸</li>
+            <li>📝 Contoh: float pi = 3.14;</li>
+            <li>📝 Format specifier: %f (standar) atau %.2f (2 desimal)</li>
+          </ul>
+          
+          <h4 class="font-bold text-violet-300 mb-2 mt-4">3️⃣ Double</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Seperti float tetapi dengan presisi lebih tinggi (double precision). Ukuran 8 byte.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📊 Presisi: 15-17 digit desimal</li>
+            <li>📝 Contoh: double pi = 3.14159265;</li>
+            <li>📝 Format specifier: %lf atau %.10lf</li>
+          </ul>
+          
+          <h4 class="font-bold text-violet-300 mb-2 mt-4">4️⃣ Character (char)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Digunakan untuk menyimpan satu karakter saja (huruf, angka, atau simbol). Ukuran 1 byte.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📊 Range: -128 hingga 127 (atau 0-255 untuk unsigned)</li>
+            <li>📝 Contoh: char huruf = 'A';</li>
+            <li>📝 Format specifier: %c</li>
+            <li>⚠️ Gunakan single quotes ' ' bukan double quotes " "</li>
+          </ul>
+          
+          <h4 class="font-bold text-violet-300 mb-2 mt-4">5️⃣ String (Array of Char)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Array dari beberapa char untuk menyimpan teks/kata. Tidak ada tipe data "string" di C, menggunakan array char.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📝 Contoh: char nama[] = "Budi";</li>
+            <li>📝 Format specifier: %s</li>
+            <li>💡 Gunakan double quotes " " untuk string</li>
+          </ul>
+          
+          <h4 class="font-bold text-violet-300 mb-2 mt-4">📊 Tabel Perbandingan Tipe Data</h4>
+          <div class="text-slate-300 text-xs bg-violet-900/30 p-2 rounded border border-violet-700">
+            <table class="w-full">
+              <tr class="border-b border-violet-600">
+                <td class="font-bold py-1">Tipe</td>
+                <td class="font-bold">Ukuran</td>
+                <td class="font-bold">Contoh</td>
+              </tr>
+              <tr><td>int</td><td>4 byte</td><td>42</td></tr>
+              <tr><td>float</td><td>4 byte</td><td>3.14</td></tr>
+              <tr><td>double</td><td>8 byte</td><td>3.14159265</td></tr>
+              <tr><td>char</td><td>1 byte</td><td>'A'</td></tr>
+            </table>
+          </div>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    int angka = 42;
+    float desimal = 3.14;
+    char huruf = 'A';
+    
+    printf("Integer: %d\\n", angka);
+    printf("Float: %.2f\\n", desimal);
+    printf("Char: %c\\n", huruf);
+    
+    return 0;
+}`,
+        exampleOutput: `Integer: 42\nFloat: 3.14\nChar: A`,
+        practices: [
+          { task: 'Tampilkan variabel int dengan nilai 100', expected: '100', hints: '💡 int x = 100;\n💡 printf("%d\\n", x);' },
+          { task: 'Tampilkan float dengan 2 desimal: 3.14159', expected: '3.14', hints: '💡 float pi = 3.14159;\n💡 printf("%.2f\\n", pi);' },
+          { task: 'Tampilkan satu karakter "X"', expected: 'X', hints: '💡 char c = \'X\';\n💡 printf("%c\\n", c);' },
+          { task: 'Tampilkan string "Hello World"', expected: 'Hello World', hints: '💡 char str[] = "Hello World";\n💡 printf("%s\\n", str);' },
+          { task: 'Tampilkan 4 tipe data berbeda', expected: '10\n2.50\nB\nProgramming', hints: '💡 Deklarasikan int, float, char, dan string\n💡 Gunakan printf dengan format specifier yang tepat' }
+        ]
+      },
+      input_output: {
+        title: '📤 Input & Output',
+        theory: `
+          <h4 class="font-bold text-blue-300 mb-3">📤 Apa itu printf()?</h4>
+          <p class="text-slate-300 text-sm mb-4">printf() adalah fungsi dari library stdio.h yang digunakan untuk menampilkan teks dan nilai variabel ke layar (output).</p>
+          
+          <h4 class="font-bold text-blue-300 mb-2 mt-4">🔤 Format Specifier</h4>
+          <p class="text-slate-400 text-xs mb-2">Format specifier adalah simbol untuk menyisipkan nilai variabel dalam string printf():</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>%d → Bilangan bulat (int)</li>
+            <li>%f → Bilangan desimal (float) - standar 6 desimal</li>
+            <li>%.2f → Bilangan desimal dengan 2 digit desimal</li>
+            <li>%c → Satu karakter (char)</li>
+            <li>%s → String/teks (array of char)</li>
+            <li>%x → Bilangan hexadecimal</li>
+          </ul>
+          
+          <h4 class="font-bold text-blue-300 mb-2 mt-4">🎯 Escape Sequence</h4>
+          <p class="text-slate-400 text-xs mb-2">Escape sequence adalah kombinasi karakter khusus untuk efek tertentu:</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>\\n → Baris baru (newline)</li>
+            <li>\\t → Tab/indentasi horizontal</li>
+            <li>\\r → Carriage return (kembali ke awal baris)</li>
+            <li>\\b → Backspace (hapus karakter sebelumnya)</li>
+            <li>\\\\ → Backslash literal</li>
+            <li>\\" → Double quote literal</li>
+          </ul>
+          
+          <h4 class="font-bold text-blue-300 mb-2 mt-4">📝 Cara Menggunakan printf()</h4>
+          <div class="text-slate-300 text-xs bg-blue-900/30 p-2 rounded border border-blue-700 space-y-2">
+            <p>1. Teks biasa:</p>
+            <p class="ml-2">printf("Halo Dunia\\n");</p>
+            
+            <p>2. Dengan satu variabel:</p>
+            <p class="ml-2">printf("Umur: %d tahun\\n", umur);</p>
+            
+            <p>3. Dengan multiple variabel:</p>
+            <p class="ml-2">printf("%s adalah %d tahun\\n", nama, umur);</p>
+            
+            <p>4. Dengan format tertentu:</p>
+            <p class="ml-2">printf("Harga: Rp%.2f\\n", harga);</p>
+          </div>
+          
+          <h4 class="font-bold text-blue-300 mb-2 mt-4">⚠️ Penting!</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>🔹 Jumlah format specifier (%d, %f, dll) harus sesuai dengan jumlah variabel</li>
+            <li>🔹 Urutan variabel harus sesuai dengan urutan format specifier</li>
+            <li>🔹 Jangan lupa semicolon (;) di akhir statement</li>
+            <li>🔹 Gunakan %f untuk float/double, %d untuk int, %c untuk char, %s untuk string</li>
+          </ul>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    int umur = 20;
+    printf("Umur Anda: %d tahun\\n", umur);
+    return 0;
+}`,
+        exampleOutput: `Umur Anda: 20 tahun`,
+        practices: [
+          { task: 'Tampilkan "Nama: Budi"', expected: 'Nama: Budi', hints: '💡 printf("Nama: Budi\\n");' },
+          { task: 'Tampilkan angka 42', expected: '42', hints: '💡 printf("%d\\n", 42);' },
+          { task: 'Tampilkan 3 baris: "Nama", "Umur", "Kota"', expected: 'Nama\nUmur\nKota', hints: '💡 printf("Nama\\nUmur\\nKota\\n");' },
+          { task: 'Tampilkan variabel: int x=10, tampilkan "Nilai: 10"', expected: 'Nilai: 10', hints: '💡 int x = 10;\n💡 printf("Nilai: %d\\n", x);' },
+          { task: 'Tampilkan perkalian 5 x 6 = 30', expected: '5 x 6 = 30', hints: '💡 printf("%d x %d = %d\\n", 5, 6, 5*6);' }
+        ]
+      },
+      if_else: {
+        title: '🔀 If-Else',
+        theory: `
+          <h4 class="font-bold text-purple-300 mb-3">🧠 Apa itu If-Else?</h4>
+          <p class="text-slate-300 text-sm mb-4">If-else adalah pernyataan kondisi yang membuat program mengambil keputusan berdasarkan kondisi TRUE atau FALSE. Ini adalah fondasi logika pemrograman.</p>
+          
+          <h4 class="font-bold text-purple-300 mb-2 mt-4">📋 Operator Perbandingan</h4>
+          <p class="text-slate-400 text-xs mb-2">Operator perbandingan digunakan untuk membandingkan nilai:</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>== → Sama dengan (perhatian: 2 tanda =, bukan 1)</li>
+            <li>!= → Tidak sama dengan</li>
+            <li>< → Kurang dari</li>
+            <li>> → Lebih dari</li>
+            <li><= → Kurang dari atau sama dengan</li>
+            <li>>= → Lebih dari atau sama dengan</li>
+          </ul>
+          
+          <h4 class="font-bold text-purple-300 mb-2 mt-4">🔄 Operator Logika</h4>
+          <p class="text-slate-400 text-xs mb-2">Menggabungkan beberapa kondisi:</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>&&  → AND (kedua kondisi harus TRUE)</li>
+            <li>||  → OR (minimal satu kondisi harus TRUE)</li>
+            <li>!   → NOT (membalikkan nilai TRUE menjadi FALSE)</li>
+          </ul>
+          
+          <h4 class="font-bold text-purple-300 mb-2 mt-4">📝 Struktur If-Else</h4>
+          <div class="text-slate-300 text-xs bg-purple-900/30 p-2 rounded border border-purple-700 space-y-2">
+            <p class="font-bold">Bentuk 1 (hanya if):</p>
+            <p class="ml-2 font-mono-code text-xs">if (kondisi) {<br/>&nbsp;&nbsp;// kode jika TRUE<br/>}</p>
+            
+            <p class="font-bold mt-2">Bentuk 2 (if-else):</p>
+            <p class="ml-2 font-mono-code text-xs">if (kondisi) {<br/>&nbsp;&nbsp;// kode jika TRUE<br/>} else {<br/>&nbsp;&nbsp;// kode jika FALSE<br/>}</p>
+            
+            <p class="font-bold mt-2">Bentuk 3 (if-else if-else):</p>
+            <p class="ml-2 font-mono-code text-xs">if (kondisi1) {<br/>&nbsp;&nbsp;// jika kondisi1 TRUE<br/>} else if (kondisi2) {<br/>&nbsp;&nbsp;// jika kondisi2 TRUE<br/>} else {<br/>&nbsp;&nbsp;// jika semua FALSE<br/>}</p>
+          </div>
+          
+          <h4 class="font-bold text-purple-300 mb-2 mt-4">💡 Contoh Logika If-Else</h4>
+          <div class="text-slate-300 text-xs bg-purple-900/30 p-2 rounded border border-purple-700">
+            <p>Jika nilai >= 80 maka lulus, jika tidak maka tidak lulus</p>
+            <p class="ml-2 font-mono-code text-xs mt-1">if (nilai >= 80) {<br/>&nbsp;&nbsp;printf("Lulus");<br/>} else {<br/>&nbsp;&nbsp;printf("Tidak Lulus");<br/>}</p>
+          </div>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    int nilai = 85;
+    
+    if (nilai >= 80) {
+        printf("Lulus\\n");
+    } else {
+        printf("Tidak Lulus\\n");
+    }
+    
+    return 0;
+}`,
+        exampleOutput: `Lulus`,
+        practices: [
+          { task: 'Cek: apakah 15 > 10? Tampilkan "Benar" jika ya', expected: 'Benar', hints: '💡 if (15 > 10) printf("Benar\\n");' },
+          { task: 'Cek: apakah 5 == 5? Jika ya "Sama", jika tidak "Berbeda"', expected: 'Sama', hints: '💡 if (5 == 5) { printf("Sama\\n"); } else { printf("Berbeda\\n"); }' },
+          { task: 'Cek: apakah 20 >= 18? Tampilkan "Dewasa" atau "Belum Dewasa"', expected: 'Dewasa', hints: '💡 if (20 >= 18) printf("Dewasa\\n"); else printf("Belum Dewasa\\n");' },
+          { task: 'Variabel x=10, jika x genap tampilkan "Genap", jika ganjil tampilkan "Ganjil"', expected: 'Genap', hints: '💡 int x = 10;\n💡 if (x % 2 == 0) printf("Genap\\n"); else printf("Ganjil\\n");' },
+          { task: 'Variabel umur=25, jika >= 21 tampilkan "Boleh", jika tidak "Belum boleh"', expected: 'Boleh', hints: '💡 int umur = 25;\n💡 if (umur >= 21) printf("Boleh\\n"); else printf("Belum boleh\\n");' }
+        ]
+      },
+      switch: {
+        title: '🎚️ Switch Case',
+        theory: `
+          <h4 class="font-bold text-pink-300 mb-3">🎯 Apa itu Switch Case?</h4>
+          <p class="text-slate-300 text-sm mb-4">Switch case adalah pernyataan kondisi untuk memilih dari BEBERAPA pilihan berdasarkan nilai variabel. Lebih rapi dibanding if-else bertingkat ketika ada banyak pilihan.</p>
+          
+          <h4 class="font-bold text-pink-300 mb-2 mt-4">📋 Struktur Switch Case</h4>
+          <div class="text-slate-300 text-xs bg-pink-900/30 p-2 rounded border border-pink-700">
+            <p class="font-mono-code text-xs">switch(variabel) {<br/>&nbsp;&nbsp;case nilai1:<br/>&nbsp;&nbsp;&nbsp;&nbsp;// kode jika = nilai1<br/>&nbsp;&nbsp;&nbsp;&nbsp;break;<br/>&nbsp;&nbsp;case nilai2:<br/>&nbsp;&nbsp;&nbsp;&nbsp;// kode jika = nilai2<br/>&nbsp;&nbsp;&nbsp;&nbsp;break;<br/>&nbsp;&nbsp;default:<br/>&nbsp;&nbsp;&nbsp;&nbsp;// kode jika tidak ada yang cocok<br/>}</p>
+          </div>
+          
+          <h4 class="font-bold text-pink-300 mb-2 mt-4">⚠️ Penting tentang Break dan Default</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>🔹 <span class="text-pink-400 font-bold">break;</span> → Keluar dari switch, WAJIB ada di akhir setiap case</li>
+            <li>🔹 Jika lupa break, kode akan melanjutkan ke case berikutnya (fall-through)</li>
+            <li>🔹 <span class="text-pink-400 font-bold">default:</span> → Case default jika tidak ada case yang cocok (seperti else di if-else)</li>
+            <li>🔹 Default bersifat optional, tidak HARUS ada</li>
+          </ul>
+          
+          <h4 class="font-bold text-pink-300 mb-2 mt-4">📝 Contoh Kasus Switch Case</h4>
+          <div class="text-slate-300 text-xs bg-pink-900/30 p-2 rounded border border-pink-700 space-y-2">
+            <p><span class="font-bold">Kasus: Memilih hari berdasarkan angka</span></p>
+            <p class="ml-2">1 → Senin, 2 → Selasa, 3 → Rabu, dst</p>
+            
+            <p class="font-bold mt-2">Kasus: Memilih warna berdasarkan angka</span></p>
+            <p class="ml-2">1 → Merah, 2 → Hijau, 3 → Biru, dst</p>
+          </div>
+          
+          <h4 class="font-bold text-pink-300 mb-2 mt-4">🔄 Perbandingan Switch vs If-Else</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>✅ Gunakan switch jika banyak pilihan dengan satu variabel</li>
+            <li>✅ Gunakan if-else untuk kondisi kompleks atau range nilai</li>
+            <li>✅ Switch biasanya lebih cepat dan lebih rapi dibaca</li>
+          </ul>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    int pilihan = 2;
+    
+    switch(pilihan) {
+        case 1: printf("Pilihan 1\\n"); break;
+        case 2: printf("Pilihan 2\\n"); break;
+        default: printf("Tidak ada pilihan\\n");
+    }
+    
+    return 0;
+}`,
+        exampleOutput: `Pilihan 2`,
+        practices: [
+          { task: 'Buat switch untuk angka 1, tampilkan "Satu"', expected: 'Satu', hints: '💡 switch(1) { case 1: printf("Satu\\n"); break; }' },
+          { task: 'Buat switch untuk 3 pilihan: 1="Merah", 2="Hijau", 3="Biru" (gunakan 2)', expected: 'Hijau', hints: '💡 switch(2) dengan 3 case untuk warna' },
+          { task: 'Buat switch dengan default case untuk angka 5', expected: 'Tidak ada', hints: '💡 Tidak ada case 5, jadi masuk ke default' },
+          { task: 'Buat switch hari: 1="Senin", 2="Selasa", 3="Rabu" (gunakan 1)', expected: 'Senin', hints: '💡 switch(1) dengan case untuk hari-hari' },
+          { task: 'Buat switch untuk 4 pilihan + default', expected: 'Pilihan 3', hints: '💡 Buat 4 case dengan break dan default' }
+        ]
+      },
+      for_loop: {
+        title: '🔁 For Loop',
+        theory: `
+          <h4 class="font-bold text-green-300 mb-3">🔄 Apa itu For Loop?</h4>
+          <p class="text-slate-300 text-sm mb-4">For loop adalah pernyataan untuk mengulang kode berkali-kali dengan jumlah yang SUDAH DITENTUKAN di awal. Cocok untuk pengulangan dengan jumlah pasti.</p>
+          
+          <h4 class="font-bold text-green-300 mb-2 mt-4">📋 Struktur For Loop</h4>
+          <div class="text-slate-300 text-xs bg-green-900/30 p-2 rounded border border-green-700">
+            <p class="font-bold">Sintaks:</p>
+            <p class="ml-2 font-mono-code text-xs">for (int i=awal; i<=akhir; i++) {<br/>&nbsp;&nbsp;// kode yang diulang<br/>}</p>
+          </div>
+          
+          <h4 class="font-bold text-green-300 mb-2 mt-4">🧩 Tiga Bagian For Loop</h4>
+          <div class="text-slate-400 text-xs space-y-2 ml-2">
+            <p><span class="text-green-400 font-bold">1. Inisialisasi (int i=1)</span><br/>→ Menentukan nilai awal variabel loop</p>
+            
+            <p><span class="text-green-400 font-bold">2. Kondisi (i<=5)</span><br/>→ Menentukan sampai mana loop berjalan. Loop berhenti ketika kondisi FALSE</p>
+            
+            <p><span class="text-green-400 font-bold">3. Increment (i++)</span><br/>→ Menambah nilai variabel loop setiap kali iterasi. Bisa juga i-- untuk mengurangi</p>
+          </div>
+          
+          <h4 class="font-bold text-green-300 mb-2 mt-4">📊 Cara Kerja For Loop</h4>
+          <div class="text-slate-300 text-xs bg-green-900/30 p-2 rounded border border-green-700">
+            <p class="font-mono-code">for (int i=1; i<=5; i++)</p>
+            <ol class="ml-2 mt-2 space-y-1">
+              <li>1️⃣ Iterasi 1: i=1, kondisi (1<=5) TRUE → jalankan kode → i++ jadi i=2</li>
+              <li>2️⃣ Iterasi 2: i=2, kondisi (2<=5) TRUE → jalankan kode → i++ jadi i=3</li>
+              <li>3️⃣ Iterasi 3: i=3, kondisi (3<=5) TRUE → jalankan kode → i++ jadi i=4</li>
+              <li>4️⃣ Iterasi 4: i=4, kondisi (4<=5) TRUE → jalankan kode → i++ jadi i=5</li>
+              <li>5️⃣ Iterasi 5: i=5, kondisi (5<=5) TRUE → jalankan kode → i++ jadi i=6</li>
+              <li>6️⃣ Loop selesai: i=6, kondisi (6<=5) FALSE → keluar loop</li>
+            </ol>
+          </div>
+          
+          <h4 class="font-bold text-green-300 mb-2 mt-4">🎯 Varian For Loop</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>i++ → Increment 1: for (int i=1; i<=5; i++)</li>
+            <li>i+=2 → Increment 2: for (int i=1; i<=5; i+=2) → 1, 3, 5</li>
+            <li>i-- → Decrement: for (int i=5; i>=1; i--) → hitung mundur</li>
+            <li>i*=2 → Increment kali 2: for (int i=1; i<=10; i*=2) → 1, 2, 4, 8</li>
+          </ul>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    for (int i = 1; i <= 5; i++) {
+        printf("%d ", i);
+    }
+    printf("\\n");
+    
+    return 0;
+}`,
+        exampleOutput: `1 2 3 4 5 `,
+        practices: [
+          { task: 'Tampilkan 1 sampai 3 (pisahkan dengan spasi)', expected: '1 2 3 ', hints: '💡 for (int i=1; i<=3; i++)\n💡 printf("%d ", i);' },
+          { task: 'Tampilkan 1, 2, 3 masing-masing di baris baru', expected: '1\n2\n3', hints: '💡 for (int i=1; i<=3; i++)\n💡 printf("%d\\n", i);' },
+          { task: 'Hitung jumlah 1+2+3+4+5 dan tampilkan hasilnya', expected: '15', hints: '💡 int sum = 0;\n💡 for (int i=1; i<=5; i++) sum += i;\n💡 printf("%d\\n", sum);' },
+          { task: 'Tampilkan angka genap 2, 4, 6, 8, 10', expected: '2 4 6 8 10 ', hints: '💡 for (int i=2; i<=10; i+=2) printf("%d ", i);' },
+          { task: 'Tampilkan tabel perkalian 5 (5x1 sampai 5x5)', expected: '5\n10\n15\n20\n25', hints: '💡 for (int i=1; i<=5; i++)\n💡 printf("%d\\n", 5*i);' }
+        ]
+      },
+      while_loop: {
+        title: '🔄 While Loop',
+        theory: `
+          <h4 class="font-bold text-cyan-300 mb-3">⚙️ Apa itu While Loop?</h4>
+          <p class="text-slate-300 text-sm mb-4">While loop adalah pernyataan untuk mengulang kode SELAMA kondisi bernilai TRUE. Berbeda dengan for loop, jumlah pengulangan TIDAK diketahui di awal.</p>
+          
+          <h4 class="font-bold text-cyan-300 mb-2 mt-4">📋 Struktur While Loop</h4>
+          <div class="text-slate-300 text-xs bg-cyan-900/30 p-2 rounded border border-cyan-700">
+            <p class="font-bold">Sintaks:</p>
+            <p class="ml-2 font-mono-code text-xs">while (kondisi) {<br/>&nbsp;&nbsp;// kode yang diulang<br/>&nbsp;&nbsp;i++;  // WAJIB ada increment untuk menghindari infinite loop<br/>}</p>
+          </div>
+          
+          <h4 class="font-bold text-cyan-300 mb-2 mt-4">🔄 Cara Kerja While Loop</h4>
+          <ol class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>1️⃣ Cek kondisi: apakah TRUE?</li>
+            <li>2️⃣ Jika TRUE → jalankan kode di dalam while</li>
+            <li>3️⃣ Jalankan i++ (increment)</li>
+            <li>4️⃣ Kembali ke step 1</li>
+            <li>5️⃣ Jika FALSE → keluar dari while</li>
+          </ol>
+          
+          <h4 class="font-bold text-cyan-300 mb-2 mt-4">⚠️ INFINITE LOOP - Hati-hati!</h4>
+          <div class="text-slate-300 text-xs bg-red-900/30 p-2 rounded border border-red-700 mb-2">
+            <p class="font-bold text-red-300">❌ Contoh SALAH (Infinite Loop):</p>
+            <p class="ml-2 font-mono-code">while (i <= 5) {<br/>&nbsp;&nbsp;printf("%d", i);<br/>&nbsp;&nbsp;// LUPA i++! Akan loop selamanya<br/>}</p>
+            
+            <p class="font-bold text-red-300 mt-2">✅ Contoh BENAR:</p>
+            <p class="ml-2 font-mono-code">while (i <= 5) {<br/>&nbsp;&nbsp;printf("%d", i);<br/>&nbsp;&nbsp;i++;  // Ada increment<br/>}</p>
+          </div>
+          
+          <h4 class="font-bold text-cyan-300 mb-2 mt-4">📊 Perbandingan For vs While</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>✅ <span class="text-cyan-400 font-bold">For Loop:</span> Untuk pengulangan dengan jumlah PASTI di awal</li>
+            <li>✅ <span class="text-cyan-400 font-bold">While Loop:</span> Untuk pengulangan SELAMA kondisi terpenuhi (jumlah tidak pasti)</li>
+            <li>💡 Contoh while: baca input sampai user ketik "exit"</li>
+          </ul>
+          
+          <h4 class="font-bold text-cyan-300 mb-2 mt-4">🎯 Kasus Penggunaan While Loop</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📝 Menu interaktif: loop sampai user memilih keluar</li>
+            <li>📝 Validasi input: loop sampai user memasukkan input benar</li>
+            <li>📝 Pencarian: loop sampai data ditemukan</li>
+            <li>📝 Game: loop sampai game selesai atau user kalah</li>
+          </ul>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    int i = 1;
+    
+    while (i <= 5) {
+        printf("%d ", i);
+        i++;
+    }
+    printf("\\n");
+    
+    return 0;
+}`,
+        exampleOutput: `1 2 3 4 5 `,
+        practices: [
+          { task: 'Tampilkan 1 sampai 3 menggunakan while', expected: '1 2 3 ', hints: '💡 int i = 1;\n💡 while (i <= 3) { printf("%d ", i); i++; }' },
+          { task: 'Tampilkan 5, 4, 3, 2, 1 (hitung mundur)', expected: '5 4 3 2 1 ', hints: '💡 int i = 5;\n💡 while (i >= 1) { printf("%d ", i); i--; }' },
+          { task: 'Hitung jumlah 1+2+3+4 menggunakan while', expected: '10', hints: '💡 int i=1, sum=0;\n💡 while (i<=4) { sum += i; i++; }\n💡 printf("%d\\n", sum);' },
+          { task: 'Tampilkan bilangan ganjil 1, 3, 5, 7, 9 menggunakan while', expected: '1 3 5 7 9 ', hints: '💡 int i = 1;\n💡 while (i <= 9) { printf("%d ", i); i+=2; }' },
+          { task: 'Hitung berapa banyak 1+2+3+...+10 dan tampilkan hasilnya', expected: '55', hints: '💡 int i=1, sum=0;\n💡 while (i<=10) { sum += i; i++; }\n💡 printf("%d\\n", sum);' }
+        ]
+      },
+      array: {
+        title: '📦 Array',
+        theory: `
+          <h4 class="font-bold text-orange-300 mb-3">🎯 Apa itu Array?</h4>
+          <p class="text-slate-300 text-sm mb-4">Array adalah kumpulan data dengan tipe SAMA dalam satu variabel. Seperti deretan kotak yang masing-masing menyimpan nilai. Sangat berguna untuk menyimpan banyak data sejenis.</p>
+          
+          <h4 class="font-bold text-orange-300 mb-2 mt-4">📝 Deklarasi Array</h4>
+          <div class="text-slate-300 text-xs bg-orange-900/30 p-2 rounded border border-orange-700">
+            <p class="font-bold">Sintaks:</p>
+            <p class="ml-2 font-mono-code">tipe_data nama_array[ukuran] = {nilai1, nilai2, nilai3};</p>
+            
+            <p class="font-bold mt-2">Contoh:</p>
+            <ul class="ml-2 space-y-1">
+              <li>int nilai[] = {85, 92, 78, 88, 95};</li>
+              <li>float harga[] = {15000, 20000, 12500};</li>
+              <li>char huruf[] = {'A', 'B', 'C'};</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-bold text-orange-300 mb-2 mt-4">🔍 Index Array (Sangat Penting!)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Index adalah nomor posisi elemen dalam array. PENTING: Index MULAI DARI 0, bukan 1!</p>
+          <div class="text-slate-300 text-xs bg-orange-900/30 p-2 rounded border border-orange-700">
+            <p class="font-mono-code">int arr[] = {10, 20, 30, 40, 50};</p>
+            <table class="w-full mt-2 text-xs">
+              <tr class="border-b border-orange-600">
+                <td class="font-bold">Nilai:</td>
+                <td>10</td>
+                <td>20</td>
+                <td>30</td>
+                <td>40</td>
+                <td>50</td>
+              </tr>
+              <tr>
+                <td class="font-bold">Index:</td>
+                <td>0</td>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+              </tr>
+            </table>
+            <p class="mt-2 text-xs">arr[0] = 10 (elemen pertama)</p>
+            <p class="text-xs">arr[4] = 50 (elemen kelima)</p>
+          </div>
+          
+          <h4 class="font-bold text-orange-300 mb-2 mt-4">🔗 Mengakses Elemen Array</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📖 Membaca nilai: int x = arr[0]; → x = 10</li>
+            <li>📝 Mengubah nilai: arr[2] = 100; → arr[2] sekarang 100</li>
+            <li>📤 Menampilkan: printf("%d\\n", arr[1]); → Tampilkan 20</li>
+          </ul>
+          
+          <h4 class="font-bold text-orange-300 mb-2 mt-4">🔄 Mengakses Array dengan Loop</h4>
+          <p class="text-slate-400 text-xs mb-2">Array paling powerful ketika digunakan dengan loop untuk mengakses semua elemen:</p>
+          <div class="text-slate-300 text-xs bg-orange-900/30 p-2 rounded border border-orange-700">
+            <p class="font-mono-code">int arr[] = {10, 20, 30, 40, 50};<br/>for (int i=0; i<5; i++) {<br/>&nbsp;&nbsp;printf("%d\\n", arr[i]);<br/>}</p>
+            <p class="mt-2">Output: 10, 20, 30, 40, 50 (setiap nilai di baris baru)</p>
+          </div>
+          
+          <h4 class="font-bold text-orange-300 mb-2 mt-4">⚠️ Penting!</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>🔹 Index mulai dari 0, bukan 1</li>
+            <li>🔹 Array dengan 5 elemen: index 0-4 (bukan 1-5)</li>
+            <li>🔹 Mengakses index yang tidak ada akan menyebabkan error</li>
+            <li>🔹 Ukuran array harus diketahui saat deklarasi</li>
+          </ul>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    int arr[] = {10, 20, 30};
+    
+    printf("Elemen 0: %d\\n", arr[0]);
+    printf("Elemen 1: %d\\n", arr[1]);
+    
+    return 0;
+}`,
+        exampleOutput: `Elemen 0: 10\nElemen 1: 20`,
+        practices: [
+          { task: 'Tampilkan elemen pertama array {5, 10, 15}', expected: '5', hints: '💡 int arr[] = {5, 10, 15};\n💡 printf("%d\\n", arr[0]);' },
+          { task: 'Tampilkan elemen kedua dan ketiga dari {100, 200, 300}', expected: '200\n300', hints: '💡 Gunakan arr[1] dan arr[2]' },
+          { task: 'Hitung jumlah array {10, 20, 30} menggunakan for loop', expected: '60', hints: '💡 int sum = 0;\n💡 for (int i=0; i<3; i++) sum += arr[i];' },
+          { task: 'Tampilkan semua elemen {2, 4, 6, 8} dengan spasi', expected: '2 4 6 8 ', hints: '💡 for (int i=0; i<4; i++) printf("%d ", arr[i]);' },
+          { task: 'Cari elemen terbesar dari {15, 5, 20, 10}', expected: '20', hints: '💡 Gunakan if untuk membandingkan setiap elemen' }
+        ]
+      },
+      nested_loop: {
+        title: '⚙️ Nested Loop',
+        theory: `
+          <h4 class="font-bold text-indigo-300 mb-3">🎯 Apa itu Nested Loop?</h4>
+          <p class="text-slate-300 text-sm mb-4">Nested loop adalah loop DALAM loop. Artinya, di dalam loop outer ada loop inner yang berjalan berulang-ulang. Sangat berguna untuk membuat pattern, tabel, atau matriks.</p>
+          
+          <h4 class="font-bold text-indigo-300 mb-2 mt-4">📋 Struktur Nested Loop</h4>
+          <div class="text-slate-300 text-xs bg-indigo-900/30 p-2 rounded border border-indigo-700">
+            <p class="font-bold">Sintaks:</p>
+            <p class="ml-2 font-mono-code text-xs">for (int i=1; i<=3; i++) {  ← LOOP LUAR<br/>&nbsp;&nbsp;for (int j=1; j<=2; j++) {  ← LOOP DALAM<br/>&nbsp;&nbsp;&nbsp;&nbsp;printf("*");<br/>&nbsp;&nbsp;}<br/>&nbsp;&nbsp;printf("\\n");<br/>}</p>
+          </div>
+          
+          <h4 class="font-bold text-indigo-300 mb-2 mt-4">🔄 Cara Kerja Nested Loop</h4>
+          <p class="text-slate-400 text-xs mb-2">Dengan nested loop for(i=1; i<=2; i++) for(j=1; j<=3; j++):</p>
+          <div class="text-slate-300 text-xs bg-indigo-900/30 p-2 rounded border border-indigo-700 space-y-1">
+            <p><span class="font-bold">i=1 (iterasi pertama loop luar):</span></p>
+            <p class="ml-2">- j=1, j=2, j=3 → loop dalam berjalan 3 kali</p>
+            
+            <p><span class="font-bold">i=2 (iterasi kedua loop luar):</span></p>
+            <p class="ml-2">- j=1, j=2, j=3 → loop dalam berjalan 3 kali lagi</p>
+            
+            <p class="font-bold">Total iterasi: 2 × 3 = 6 kali</p>
+          </div>
+          
+          <h4 class="font-bold text-indigo-300 mb-2 mt-4">📊 Contoh Kasus Nested Loop</h4>
+          <ul class="text-slate-400 text-xs space-y-2 ml-2">
+            <li>
+              <span class="text-indigo-400 font-bold">1. Tabel Perkalian:</span><br/>
+              Outer loop = 1-10, Inner loop = 1-10 → Tabel 10×10
+            </li>
+            <li>
+              <span class="text-indigo-400 font-bold">2. Pattern Bintang Segitiga:</span><br/>
+              Outer loop = baris, Inner loop = bintang per baris
+            </li>
+            <li>
+              <span class="text-indigo-400 font-bold">3. Matriks 2D:</span><br/>
+              Outer loop = baris, Inner loop = kolom
+            </li>
+            <li>
+              <span class="text-indigo-400 font-bold">4. Pencarian di Array 2D:</span><br/>
+              Nested loop untuk akses setiap elemen
+            </li>
+          </ul>
+          
+          <h4 class="font-bold text-indigo-300 mb-2 mt-4">🌟 Contoh: Pattern Bintang</h4>
+          <div class="text-slate-300 text-xs bg-indigo-900/30 p-2 rounded border border-indigo-700">
+            <p class="font-bold">Output yang diinginkan:</p>
+            <p class="font-mono-code">*</p>
+            <p class="font-mono-code">**</p>
+            <p class="font-mono-code">***</p>
+            
+            <p class="font-bold mt-2">Kode:</p>
+            <p class="font-mono-code text-xs">for (int i=1; i<=3; i++) {<br/>&nbsp;&nbsp;for (int j=1; j<=i; j++) {<br/>&nbsp;&nbsp;&nbsp;&nbsp;printf("*");<br/>&nbsp;&nbsp;}<br/>&nbsp;&nbsp;printf("\\n");<br/>}</p>
+            
+            <p class="mt-2">💡 Perhatikan: inner loop berjalan sesuai nilai i (i=1 → 1 bintang, i=2 → 2 bintang, dll)</p>
+          </div>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    for (int i = 1; i <= 3; i++) {
+        for (int j = 1; j <= 2; j++) {
+            printf("*");
+        }
+        printf("\\n");
+    }
+    
+    return 0;
+}`,
+        exampleOutput: `**\n**\n**`,
+        practices: [
+          { task: 'Buat pattern 3 baris, setiap baris 2 bintang', expected: '**\n**\n**', hints: '💡 Outer loop 1-3, inner loop 1-2, printf("*")' },
+          { task: 'Buat pattern segitiga 3 baris (1, 2, 3 bintang)', expected: '*\n**\n***', hints: '💡 Inner loop berjalan sesuai nilai outer loop (for j=1; j<=i)' },
+          { task: 'Tampilkan tabel perkalian 2x2', expected: '1 2 \n2 4 ', hints: '💡 printf("%d ", i*j);' },
+          { task: 'Buat pattern 4 baris dengan bintang sesuai nomor baris', expected: '*\n**\n***\n****', hints: '💡 for (int i=1; i<=4; i++) { for (int j=1; j<=i; j++) ... }' },
+          { task: 'Buat tabel perkalian 3x3', expected: '1 2 3 \n2 4 6 \n3 6 9 ', hints: '💡 3 baris, 3 kolom, kalikan i*j' }
+        ]
+      }
+    };
+
+    const challengeData = {
+      title: '🏆 Tantangan Koding',
+      description: `
+        <h3 class="text-lg font-bold text-yellow-300 mb-3">📋 Deskripsi Tantangan:</h3>
+        <p class="mb-3">Buatlah program untuk menampilkan daftar nilai siswa dan mencari nilai tertinggi!</p>
+        
+        <h3 class="text-lg font-bold text-yellow-300 mb-2 mt-4">📌 Persyaratan Program:</h3>
+        <ul class="text-slate-300 text-sm space-y-2">
+          <li>✅ Deklarasikan array dengan 5 nilai: {85, 92, 78, 88, 95}</li>
+          <li>✅ Tampilkan semua nilai dengan label "Nilai siswa ke-X: YY"</li>
+          <li>✅ Hitung dan tampilkan rata-rata nilai</li>
+          <li>✅ Cari dan tampilkan nilai tertinggi</li>
+          <li>✅ Gunakan for loop dan if-else</li>
+        </ul>
+        
+        <h3 class="text-lg font-bold text-yellow-300 mb-2 mt-4">📤 Contoh Output yang Diharapkan:</h3>
+        <pre class="bg-slate-700/50 p-3 rounded text-xs text-green-400 overflow-x-auto">Nilai siswa ke-1: 85
+Nilai siswa ke-2: 92
+Nilai siswa ke-3: 78
+Nilai siswa ke-4: 88
+Nilai siswa ke-5: 95
+Rata-rata: 87
+Nilai tertinggi: 95</pre>
+      `,
+      expected: 'Nilai siswa ke-1: 85\nNilai siswa ke-2: 92\nNilai siswa ke-3: 78\nNilai siswa ke-4: 88\nNilai siswa ke-5: 95\nRata-rata: 87\nNilai tertinggi: 95',
+      hints: [
+        '💡 Deklarasikan: int nilai[] = {85, 92, 78, 88, 95};',
+        '💡 Gunakan for loop untuk menampilkan setiap nilai',
+        '💡 Hitung sum semua nilai: sum = sum + nilai[i]',
+        '💡 Rata-rata = sum / 5',
+        '💡 Nilai tertinggi: gunakan variabel max dan bandingkan dengan if'
+      ]
+    };
+
+    const quizQuestions = [
+      { q: 'Fungsi utama program C adalah?', options: ['void main()', 'int main()', 'main()', 'function main()'], answer: 1 },
+      { q: 'Header untuk input/output adalah?', options: ['#include &lt;cstdio&gt;', '#include &lt;stdio.h&gt;', '#include &lt;input&gt;', '#include &lt;output&gt;'], answer: 1 },
+      { q: 'Simbol untuk komentar satu baris adalah?', options: ['/*', '//', '#', '--'], answer: 1 },
+      { q: 'Tipe data untuk bilangan bulat adalah?', options: ['float', 'double', 'int', 'char'], answer: 2 },
+      { q: 'Format specifier untuk int adalah?', options: ['%f', '%d', '%c', '%s'], answer: 1 },
+      { q: 'Format specifier untuk string adalah?', options: ['%d', '%f', '%s', '%c'], answer: 2 },
+      { q: 'Escape sequence untuk baris baru adalah?', options: ['\\t', '\\n', '\\r', '\\b'], answer: 1 },
+      { q: 'Operator perbandingan untuk "sama dengan" adalah?', options: ['=', '==', '!=', '<>'], answer: 1 },
+      { q: 'Operator perbandingan untuk "tidak sama dengan" adalah?', options: ['<>', '!=', '><', '=='], answer: 1 },
+      { q: 'Pernyataan yang digunakan untuk keputusan adalah?', options: ['for', 'while', 'if-else', 'do-while'], answer: 2 },
+      { q: 'Pernyataan untuk pilihan ganda adalah?', options: ['if', 'while', 'switch', 'for'], answer: 2 },
+      { q: 'Loop untuk pengulangan tetap adalah?', options: ['while', 'do-while', 'for', 'if'], answer: 2 },
+      { q: 'Loop yang tidak tahu jumlah pengulangan adalah?', options: ['for', 'while', 'if', 'switch'], answer: 1 },
+      { q: 'Struktur data untuk kumpulan data adalah?', options: ['variabel', 'array', 'function', 'kondisi'], answer: 1 },
+      { q: 'Index array dimulai dari?', options: ['1', '0', '-1', '10'], answer: 1 },
+      { q: 'Loop dalam loop disebut?', options: ['double loop', 'nested loop', 'combined loop', 'linked loop'], answer: 1 },
+      { q: 'Pernyataan yang mengakhiri program adalah?', options: ['break', 'continue', 'return 0', 'exit'], answer: 2 },
+      { q: 'Operator aritmatika untuk sisa hasil bagi adalah?', options: ['/', '*', '%', '+'], answer: 2 },
+      { q: 'Operator increment adalah?', options: ['--', '++', '-=', '+='], answer: 1 },
+      { q: 'Pernyataan break dalam switch digunakan untuk?', options: ['Memulai switch', 'Keluar dari switch', 'Lanjut ke case berikutnya', 'Menambah variabel'], answer: 1 }
+    ];
+
+    let currentLesson = null;
+    let currentPracticeIndex = 0;
+    let completedLessons = new Set();
+    let userProgress = [];
+    let currentQuizIndex = 0;
+    let quizAnswers = [];
+    let studentName = '';
+
+    async function init() {
+      if (window.dataSdk) {
+        await window.dataSdk.init({
+          onDataChanged: (data) => {
+            userProgress = data;
+            completedLessons = new Set(data.filter(d => d.lesson_id).map(d => d.lesson_id));
+            updateProgressDisplay();
+          }
+        });
+      }
+      updateProgressDisplay();
+    }
+
+    function updateProgressDisplay() {
+      const total = Object.keys(lessons).length + 1;
+      const completed = completedLessons.size;
+      document.getElementById('progress-text').textContent = `${completed}/${total}`;
+    }
+
+    function openLesson(lessonId) {
+      currentLesson = lessonId;
+      currentPracticeIndex = 0;
+      const lesson = lessons[lessonId];
+      
+      document.getElementById('menu-screen').classList.add('hidden');
+      document.getElementById('learning-screen').classList.remove('hidden');
+      document.getElementById('lesson-title').textContent = lesson.title;
+      document.getElementById('theory-content').innerHTML = lesson.theory;
+      document.getElementById('example-code').textContent = lesson.example;
+      document.getElementById('example-output').textContent = lesson.exampleOutput;
+      
+      displayPractice();
+    }
+
+    function displayPractice() {
+      const lesson = lessons[currentLesson];
+      const practice = lesson.practices[currentPracticeIndex];
+      
+      document.getElementById('practice-task').textContent = `📝 Soal ${currentPracticeIndex + 1}/${lesson.practices.length}: ${practice.task}`;
+      document.getElementById('practice-editor').value = '';
+      document.getElementById('practice-expected').textContent = practice.expected;
+      document.getElementById('practice-output').innerHTML = 'Tekan "Jalankan" untuk melihat output...';
+      
+      document.getElementById('status-panel').innerHTML = `
+        <div class="bg-blue-900/30 border border-blue-600 rounded p-3 mb-3">
+          <h4 class="font-bold text-blue-300 text-sm mb-2">💡 Petunjuk</h4>
+          <div class="text-xs text-blue-200 space-y-1">
+            ${practice.hints.split('\n').map(h => `<p>• ${h}</p>`).join('')}
+          </div>
+        </div>
+        <p class="text-slate-400 text-xs">Soal ${currentPracticeIndex + 1} dari ${lesson.practices.length}</p>
+        <div class="bg-slate-700/50 rounded p-2 mt-2">
+          <p class="text-xs text-slate-400">Progress:</p>
+          <div class="flex gap-1 mt-1">
+            ${lesson.practices.map((_, idx) => `
+              <div class="flex-1 h-2 rounded ${idx <= currentPracticeIndex ? 'bg-green-500' : 'bg-slate-600'}"></div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      updateLineNumbers();
+    }
+
+    function updateLineNumbers() {
+      const code = document.getElementById('practice-editor').value;
+      const lines = code.split('\n').length;
+      const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+      document.getElementById('line-numbers').textContent = lineNumbers;
+    }
+
+    function updateChallengeLineNumbers() {
+      const code = document.getElementById('challenge-editor').value;
+      const lines = code.split('\n').length;
+      const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+      document.getElementById('challenge-line-numbers').textContent = lineNumbers;
+    }
+
+    function resetEditor() {
+      document.getElementById('practice-editor').value = '';
+      updateLineNumbers();
+      document.getElementById('practice-output').innerHTML = 'Tekan "Jalankan" untuk melihat output...';
+    }
+
+    function resetChallengeEditor() {
+      document.getElementById('challenge-editor').value = '';
+      updateChallengeLineNumbers();
+      document.getElementById('challenge-output').innerHTML = 'Tekan "Jalankan" untuk melihat output...';
+    }
+
+    function runPractice() {
+      const code = document.getElementById('practice-editor').value;
+      const output = simulateCOutput(code).trim();
+      const expected = lessons[currentLesson].practices[currentPracticeIndex].expected.trim();
+      
+      const outputDisplay = document.getElementById('practice-output');
+      if (output) {
+        outputDisplay.innerHTML = `<span class="text-green-400">${escapeHtml(output)}</span>`;
+      } else {
+        outputDisplay.innerHTML = '<span class="text-red-400">❌ Tidak ada output</span>';
+      }
+
+      checkPracticeAnswer(output, expected);
+    }
+
+    function runChallenge() {
+      const code = document.getElementById('challenge-editor').value;
+      const output = simulateCOutput(code).trim();
+      const expected = challengeData.expected.trim();
+      
+      const outputDisplay = document.getElementById('challenge-output');
+      if (output) {
+        outputDisplay.innerHTML = `<span class="text-green-400">${escapeHtml(output)}</span>`;
+      } else {
+        outputDisplay.innerHTML = '<span class="text-red-400">❌ Tidak ada output</span>';
+      }
+
+      checkChallengeAnswer(output, expected);
+    }
+
+    function checkPracticeAnswer(output, expected) {
+      const statusPanel = document.getElementById('status-panel');
+      const lesson = lessons[currentLesson];
+      const practice = lesson.practices[currentPracticeIndex];
+      
+      if (output === expected) {
+        statusPanel.innerHTML = `
+          <div class="bg-green-900/30 border border-green-600 rounded p-3 mb-3 animate-pop-in">
+            <p class="text-green-300 font-bold text-lg">✅ BENAR!</p>
+            <p class="text-green-200 text-xs mt-1">Output sesuai dengan harapan</p>
+          </div>
+          <button onclick="nextPractice()" class="w-full py-2 bg-green-600 hover:bg-green-500 rounded font-medium transition-colors text-sm animate-bounce">
+            Soal Berikutnya →
+          </button>
+        `;
+      } else {
+        statusPanel.innerHTML = `
+          <div class="bg-red-900/30 border border-red-600 rounded p-3 mb-3 animate-shake">
+            <p class="text-red-300 font-bold">❌ SALAH</p>
+            <p class="text-red-200 text-xs mt-2">Output tidak sesuai</p>
+            <div class="mt-3 space-y-2 text-xs">
+              <div class="bg-slate-900/50 p-2 rounded border border-slate-600">
+                <p class="text-slate-400">📊 Output Anda:</p>
+                <p class="text-slate-300 font-mono-code whitespace-pre-wrap">"${escapeHtml(output)}"</p>
+              </div>
+              <div class="bg-green-900/50 p-2 rounded border border-green-700">
+                <p class="text-green-400">✅ Seharusnya:</p>
+                <p class="text-green-300 font-mono-code whitespace-pre-wrap">"${escapeHtml(expected)}"</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-blue-900/30 border border-blue-600 rounded p-3 mb-3 animate-slide-in">
+            <h4 class="font-bold text-blue-300 text-sm mb-2">💡 Petunjuk</h4>
+            <div class="text-xs text-blue-200 space-y-1">
+              ${practice.hints.split('\n').map(h => `<p>• ${h}</p>`).join('')}
+            </div>
+          </div>
+          <button onclick="runPractice()" class="w-full py-2 bg-amber-600 hover:bg-amber-500 rounded font-medium transition-colors text-sm">
+            Coba Lagi
+          </button>
+        `;
+      }
+    }
+
+    function checkChallengeAnswer(output, expected) {
+      if (output === expected) {
+        document.getElementById('challenge-hints').innerHTML = `
+          <div class="bg-emerald-900/30 border border-emerald-600 rounded p-4 text-center animate-pop-in">
+            <p class="text-4xl mb-3 animate-bounce">🎉</p>
+            <p class="text-emerald-300 font-bold text-lg">SEMPURNA!</p>
+            <p class="text-emerald-200 text-xs mt-2">Anda berhasil menyelesaikan tantangan koding!</p>
+            <button onclick="backToMenu()" class="mt-4 w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded font-medium transition-colors text-sm">
+              Kembali ke Menu
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    async function nextPractice() {
+      const lesson = lessons[currentLesson];
+      currentPracticeIndex++;
+      
+      if (currentPracticeIndex >= lesson.practices.length) {
+        if (window.dataSdk && !completedLessons.has(currentLesson)) {
+          await window.dataSdk.create({
+            lesson_id: currentLesson,
+            completed: true,
+            score: 100,
+            completed_at: new Date().toISOString()
+          });
+        }
+        showLessonComplete();
+      } else {
+        displayPractice();
+      }
+    }
+
+    function showLessonComplete() {
+      const statusPanel = document.getElementById('status-panel');
+      statusPanel.innerHTML = `
+        <div class="bg-emerald-900/30 border border-emerald-600 rounded p-3 text-center mb-3 animate-pop-in">
+          <p class="text-4xl mb-2">🎉</p>
+          <p class="text-emerald-300 font-bold">Selesai!</p>
+          <p class="text-emerald-200 text-xs mt-1">Semua soal topik ini sudah dikerjakan</p>
+        </div>
+        <button onclick="backToMenu()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 rounded font-medium transition-colors text-sm">
+          Kembali ke Menu
+        </button>
+      `;
+    }
+
+    function openChallenge() {
+      document.getElementById('menu-screen').classList.add('hidden');
+      document.getElementById('challenge-screen').classList.remove('hidden');
+      
+      document.getElementById('challenge-desc').innerHTML = challengeData.description;
+      document.getElementById('challenge-expected').textContent = 'Nilai siswa ke-1: 85\nNilai siswa ke-2: 92\nNilai siswa ke-3: 78\nNilai siswa ke-4: 88\nNilai siswa ke-5: 95\nRata-rata: 87\nNilai tertinggi: 95';
+      
+      const hintsHtml = challengeData.hints.map((h, i) => `<p class="animate-slide-in" style="animation-delay: ${i * 50}ms">${h}</p>`).join('');
+      document.getElementById('challenge-hints').innerHTML = hintsHtml;
+      
+      updateChallengeLineNumbers();
+    }
+
+    function openQuiz() {
+      quizAnswers = new Array(quizQuestions.length).fill(-1);
+      currentQuizIndex = 0;
+      studentName = '';
+      
+      document.getElementById('menu-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      document.getElementById('student-input-screen').classList.remove('hidden');
+      document.getElementById('quiz-content-screen').classList.add('hidden');
+      document.getElementById('quiz-result-screen').classList.add('hidden');
+    }
+
+    function startQuiz() {
+      studentName = document.getElementById('student-name-input').value.trim();
+      if (!studentName) {
+        const input = document.getElementById('student-name-input');
+        input.classList.add('animate-shake');
+        setTimeout(() => input.classList.remove('animate-shake'), 400);
+        return;
+      }
+
+      document.getElementById('student-input-screen').classList.add('hidden');
+      document.getElementById('quiz-content-screen').classList.remove('hidden');
+      
+      displayQuizQuestion();
+    }
+
+    function displayQuizQuestion() {
+      const q = quizQuestions[currentQuizIndex];
+      answerSubmitted = false;
+      
+      document.getElementById('quiz-question-num').textContent = `Soal ${currentQuizIndex + 1} / 20`;
+      document.getElementById('quiz-question').textContent = q.q;
+      document.getElementById('quiz-progress-text').textContent = `Soal ${currentQuizIndex + 1} / 20`;
+      
+      const progressPercent = ((currentQuizIndex + 1) / quizQuestions.length) * 100;
+      document.getElementById('quiz-progress-bar-fill').style.width = progressPercent + '%';
+      document.getElementById('quiz-progress-fill-mini').style.width = progressPercent + '%';
+      document.getElementById('quiz-progress-percent').textContent = Math.round(progressPercent) + '%';
+      
+      const optionsHtml = q.options.map((opt, idx) => `
+        <button onclick="selectQuizAnswer(${idx})" class="w-full quiz-option border-2 border-slate-600 rounded-lg p-4 text-left transition-all ${quizAnswers[currentQuizIndex] === idx ? 'selected' : 'hover:border-indigo-500'} ${quizAnswers[currentQuizIndex] === idx ? 'animate-scale' : 'animate-slide-in'}" style="${quizAnswers[currentQuizIndex] === idx ? 'animation-delay: 0s' : `animation-delay: ${idx * 50}ms`}">
+          <div class="flex items-center gap-3">
+            <div class="w-5 h-5 rounded-full border-2 border-slate-500 flex items-center justify-center transition-all ${quizAnswers[currentQuizIndex] === idx ? 'border-indigo-500 bg-indigo-500' : ''}">
+              ${quizAnswers[currentQuizIndex] === idx ? '<svg class="w-3 h-3 text-white animate-checkmark" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : ''}
+            </div>
+            <span class="text-slate-200 font-medium">${opt}</span>
+          </div>
+        </button>
+      `).join('');
+      
+      document.getElementById('quiz-options').innerHTML = optionsHtml;
+      
+      document.getElementById('btn-prev').disabled = currentQuizIndex === 0;
+      document.getElementById('btn-next').textContent = currentQuizIndex === quizQuestions.length - 1 ? 'Selesai Kuis →' : 'Selanjutnya →';
+      
+      updateQuizProgress();
+    }
+    function selectQuizAnswer(idx) {
+      quizAnswers[currentQuizIndex] = idx;
+      displayQuizQuestion();
+    }
+
+    function updateQuizProgress() {
+      const answered = quizAnswers.filter(a => a !== -1).length;
+      document.getElementById('quiz-score-display').textContent = answered;
+      document.getElementById('quiz-answered-count').textContent = `${answered}/20`;
+      
+      let indicatorHtml = '';
+      for (let i = 0; i < quizQuestions.length; i++) {
+        let color = 'bg-slate-700';
+        if (quizAnswers[i] !== -1) {
+          color = quizAnswers[i] === quizQuestions[i].answer ? 'bg-green-500' : 'bg-orange-500';
+        }
+        indicatorHtml += `<div class="w-full h-2 rounded ${color} transition-all ${i === currentQuizIndex ? 'ring-2 ring-indigo-500' : ''}"></div>`;
+      }
+      document.getElementById('quiz-indicator-container').innerHTML = indicatorHtml;
+    }
+
+    function previousQuizQuestion() {
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        displayQuizQuestion();
+      }
+    }
+
+    function nextQuizQuestion() {
+      if (currentQuizIndex < quizQuestions.length - 1) {
+        currentQuizIndex++;
+        displayQuizQuestion();
+      } else {
+        submitQuiz();
+      }
+    }
+
+    async function submitQuiz() {
+      const correctAnswers = quizAnswers.filter((ans, idx) => ans === quizQuestions[idx].answer).length;
+      const percentage = Math.round((correctAnswers / quizQuestions.length) * 100);
+      
+      if (window.dataSdk) {
+        await window.dataSdk.create({
+          type: 'quiz_result',
+          student_name: studentName,
+          quiz_score: correctAnswers,
+          quiz_correct: correctAnswers,
+          quiz_answers: JSON.stringify(quizAnswers),
+          score: percentage,
+          completed_at: new Date().toISOString()
+        });
+      }
+      
+      showQuizResult(correctAnswers, percentage);
+    }
+
+    function showQuizResult(correct, percentage) {
+      document.getElementById('quiz-content-screen').classList.add('hidden');
+      document.getElementById('quiz-result-screen').classList.remove('hidden');
+      
+      document.getElementById('student-name-display').textContent = `Nama: ${studentName}`;
+      document.getElementById('result-score').textContent = `${correct}/20`;
+      document.getElementById('result-percentage').textContent = `${percentage}%`;
+      document.getElementById('result-percentage-bar').style.width = percentage + '%';
+      
+      let emoji = '🎉';
+      let message = 'Luar Biasa!';
+      if (percentage < 60) {
+        emoji = '😔';
+        message = 'Perlu Belajar Lebih Banyak';
+      } else if (percentage < 75) {
+        emoji = '😊';
+        message = 'Cukup Baik!';
+      } else if (percentage < 90) {
+        emoji = '👏';
+        message = 'Sangat Baik!';
+      } else if (percentage < 100) {
+        emoji = '⭐';
+        message = 'Sempurna Hampir!';
+      } else {
+        emoji = '🏆';
+        message = 'SEMPURNA!';
+      }
+      
+      document.getElementById('result-emoji').textContent = emoji;
+      
+      const detailsHtml = quizAnswers.map((ans, idx) => {
+        const correct = ans === quizQuestions[idx].answer;
+        const answerText = ans !== -1 ? quizQuestions[idx].options[ans] : 'Tidak dijawab';
+        return `
+          <div class="flex items-start gap-3 p-3 rounded-lg border ${correct ? 'border-green-600 bg-green-900/20' : 'border-red-600 bg-red-900/20'} animate-slide-in-up" style="animation-delay: ${idx * 30}ms">
+            <span class="text-lg font-bold ${correct ? 'text-green-400' : 'text-red-400'}">${idx + 1}</span>
+            <div class="flex-1">
+              <p class="font-bold text-slate-100 text-sm">${quizQuestions[idx].q}</p>
+              <p class="text-xs ${correct ? 'text-green-400' : 'text-slate-300'} mt-1">Jawaban Anda: ${answerText}</p>
+              ${!correct ? `<p class="text-xs text-green-400 mt-1">✅ Benar: ${quizQuestions[idx].options[quizQuestions[idx].answer]}</p>` : ''}
+            </div>
+            <span class="text-xl">${correct ? '✅' : '❌'}</span>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('result-details').innerHTML = detailsHtml;
+    }
+
+    function backToMenu() {
+      currentLesson = null;
+      currentPracticeIndex = 0;
+      document.getElementById('learning-screen').classList.add('hidden');
+      document.getElementById('challenge-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('menu-screen').classList.remove('hidden');
+      updateProgressDisplay();
+    }
+
+    function simulateCOutput(code) {
+      let output = '';
+      const lines = code.split('\n');
+      const variables = {};
+      const arrays = {};
+
+      try {
+        for (let idx = 0; idx < lines.length; idx++) {
+          const line = lines[idx];
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('//') || trimmed.includes('#include') || trimmed.includes('int main') || trimmed === '}') continue;
+          if (trimmed === 'return 0;') continue;
+
+          const arrMatch = trimmed.match(/int\s+(\w+)\[\]\s*=\s*\{([^}]+)\}/);
+          if (arrMatch) {
+            const vals = arrMatch[2].split(',').map(v => parseInt(v.trim()));
+            arrays[arrMatch[1]] = vals;
+            continue;
+          }
+
+          const varMatch = trimmed.match(/int\s+(\w+)\s*=\s*(-?\d+)/);
+          if (varMatch) {
+            variables[varMatch[1]] = parseInt(varMatch[2]);
+            continue;
+          }
+
+          const printfMatch = trimmed.match(/printf\s*\(\s*"([^"]*)"\s*(?:,\s*(.+?))?\s*\);/);
+          if (printfMatch) {
+            let str = printfMatch[1].replace(/\\n/g, '\n');
+            const args = printfMatch[2] ? printfMatch[2].split(',').map(a => a.trim()) : [];
+            
+            str = str.replace(/%d/g, () => {
+              if (args.length === 0) return '%d';
+              const arg = args.shift();
+              try {
+                let expr = arg;
+                for (const [name, val] of Object.entries(variables)) {
+                  expr = expr.replace(new RegExp(`\\b${name}\\b`, 'g'), val);
+                }
+                
+                const arrMatch = expr.match(/(\w+)\[(\d+)\]/);
+                if (arrMatch && arrays[arrMatch[1]]) {
+                  return arrays[arrMatch[1]][parseInt(arrMatch[2])];
+                }
+                
+                return eval(expr);
+              } catch {
+                return variables[arg] || arg;
+              }
+            });
+            output += str;
+            continue;
+          }
+
+          const forMatch = trimmed.match(/for\s*\(\s*int\s+(\w+)\s*=\s*(\d+)\s*;\s*(\w+)\s*([<>=!]+)\s*(\d+)\s*;\s*(\w+)([\+\-\=\d]*)\s*\)/);
+          if (forMatch) {
+            const varName = forMatch[1];
+            let startVal = parseInt(forMatch[2]);
+            const endVal = parseInt(forMatch[5]);
+            const op = forMatch[4];
+            
+            while ((op === '<' && startVal < endVal) || (op === '<=' && startVal <= endVal) || (op === '>' && startVal > endVal) || (op === '>=' && startVal >= endVal)) {
+              variables[varName] = startVal;
+              
+              for (let j = idx + 1; j < lines.length; j++) {
+                const bodyLine = lines[j].trim();
+                if (bodyLine === '}') break;
+                
+                const bodyPrintfMatch = bodyLine.match(/printf\s*\(\s*"([^"]*)"\s*(?:,\s*(.+?))?\s*\);/);
+                if (bodyPrintfMatch) {
+                  let bodyStr = bodyPrintfMatch[1].replace(/\\n/g, '\n');
+                  const bodyArgs = bodyPrintfMatch[2] ? bodyPrintfMatch[2].split(',').map(a => a.trim()) : [];
+                  
+                  bodyStr = bodyStr.replace(/%d/g, () => {
+                    if (bodyArgs.length === 0) return '%d';
+                    const arg = bodyArgs.shift();
+                    try {
+                      let expr = arg;
+                      for (const [name, val] of Object.entries(variables)) {
+                        expr = expr.replace(new RegExp(`\\b${name}\\b`, 'g'), val);
+                      }
+                      
+                      const arrMatch = expr.match(/(\w+)\[(\d+)\]/);
+                      if (arrMatch && arrays[arrMatch[1]]) {
+                        return arrays[arrMatch[1]][parseInt(arrMatch[2])];
+                      }
+                      
+                      return eval(expr);
+                    } catch {
+                      return variables[arg] || arg;
+                    }
+                  });
+                  output += bodyStr;
+                }
+                
+                const assignMatch = bodyLine.match(/(\w+)\s*=\s*(.+?);/);
+                if (assignMatch) {
+                  try {
+                    let expr = assignMatch[2];
+                    for (const [name, val] of Object.entries(variables)) {
+                      expr = expr.replace(new RegExp(`\\b${name}\\b`, 'g'), val);
+                    }
+                    variables[assignMatch[1]] = eval(expr);
+                  } catch {}
+                }
+
+                const ifMatch = bodyLine.match(/if\s*\((.+?)\)\s*\{?([^}]*)\}?/);
+                if (ifMatch) {
+                  try {
+                    let cond = ifMatch[1];
+                    for (const [name, val] of Object.entries(variables)) {
+                      cond = cond.replace(new RegExp(`\\b${name}\\b`, 'g'), val);
+                    }
+                    if (eval(cond)) {
+                      const ifBody = ifMatch[2];
+                      const ifPrintfMatch = ifBody.match(/printf\s*\(\s*"([^"]*)"/);
+                      if (ifPrintfMatch) {
+                        output += ifPrintfMatch[1].replace(/\\n/g, '\n');
+                      }
+                    }
+                  } catch {}
+                }
+              }
+              
+              startVal++;
+            }
+            continue;
+          }
+
+          const whileMatch = trimmed.match(/while\s*\((.+?)\)\s*\{?/);
+          if (whileMatch) {
+            while (true) {
+              try {
+                let cond = whileMatch[1];
+                for (const [name, val] of Object.entries(variables)) {
+                  cond = cond.replace(new RegExp(`\\b${name}\\b`, 'g'), val);
+                }
+                if (!eval(cond)) break;
+              } catch {
+                break;
+              }
+              
+              for (let j = idx + 1; j < lines.length; j++) {
+                const bodyLine = lines[j].trim();
+                if (bodyLine === '}') break;
+                
+                const bodyPrintfMatch = bodyLine.match(/printf\s*\(\s*"([^"]*)"\s*(?:,\s*(.+?))?\s*\);/);
+                if (bodyPrintfMatch) {
+                  let bodyStr = bodyPrintfMatch[1].replace(/\\n/g, '\n');
+                  const bodyArgs = bodyPrintfMatch[2] ? bodyPrintfMatch[2].split(',').map(a => a.trim()) : [];
+                  
+                  bodyStr = bodyStr.replace(/%d/g, () => {
+                    if (bodyArgs.length === 0) return '%d';
+                    const arg = bodyArgs.shift();
+                    try {
+                      let expr = arg;
+                      for (const [name, val] of Object.entries(variables)) {
+                        expr = expr.replace(new RegExp(`\\b${name}\\b`, 'g'), val);
+                      }
+                      
+                      const arrMatch = expr.match(/(\w+)\[(\d+)\]/);
+                      if (arrMatch && arrays[arrMatch[1]]) {
+                        return arrays[arrMatch[1]][parseInt(arrMatch[2])];
+                      }
+                      
+                      return eval(expr);
+                    } catch {
+                      return variables[arg] || arg;
+                    }
+                  });
+                  output += bodyStr;
+                }
+                
+                const assignMatch = bodyLine.match(/(\w+)\s*=\s*(.+?);/);
+                if (assignMatch) {
+                  try {
+                    let expr = assignMatch[2];
+                    for (const [name, val] of Object.entries(variables)) {
+                      expr = expr.replace(new RegExp(`\\b${name}\\b`, 'g'), val);
+                    }
+                    variables[assignMatch[1]] = eval(expr);
+                  } catch {}
+                }
+              }
+            }
+            continue;
+          }
+
+          const ifMatch = trimmed.match(/if\s*\((.+?)\)\s*\{?([^}]*)\}?/);
+          if (ifMatch) {
+            try {
+              let cond = ifMatch[1];
+              for (const [name, val] of Object.entries(variables)) {
+                cond = cond.replace(new RegExp(`\\b${name}\\b`, 'g'), val);
+              }
+              if (eval(cond)) {
+                const ifBody = ifMatch[2];
+                const ifPrintfMatch = ifBody.match(/printf\s*\(\s*"([^"]*)"/);
+                if (ifPrintfMatch) {
+                  output += ifPrintfMatch[1].replace(/\\n/g, '\n');
+                }
+              }
+            } catch {}
+          }
+        }
+      } catch (e) {
+        return '';
+      }
+
+      return output;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cc949f032dcf93b',t:'MTc3MDg2OTk3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
