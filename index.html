@@ -1,16 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id" class="h-full">
-<head>
+ <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Belajar Algoritma C - Gamified</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: #e2e8f0; }
+    body { box-sizing: border-box; }
     .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    .font-sans-main { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .code-editor { background: linear-gradient(135deg, #1e1e2e 0%, #2d2d3f 100%); border: 1px solid #3d3d5c; }
     
+    /* Animations */
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -20,10 +23,11 @@
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
     @keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); } 50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); } }
     @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) rotateX(90deg); } 100% { opacity: 1; transform: scale(1) rotateX(0); } }
-    @keyframes rainbow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+    @keyframes sparkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
     @keyframes confetti { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(-100px) rotate(720deg); opacity: 0; } }
     @keyframes levelUp { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+    @keyframes progressFill { from { width: 0; } to { width: var(--progress-width); } }
+    @keyframes rainbow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     
     .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
     .animate-slide-in { animation: slideIn 0.3s ease-out; }
@@ -34,113 +38,83 @@
     .animate-shake { animation: shake 0.4s ease-in-out; }
     .animate-glow { animation: glow 2s ease-in-out infinite; }
     .animate-pop-in { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .animate-sparkle { animation: sparkle 1.5s ease-in-out infinite; }
     .animate-level-up { animation: levelUp 0.6s ease-out; }
+    .animate-confetti { animation: confetti 1s ease-out forwards; }
     
-    .xp-bar-fill { background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899, #f59e0b); background-size: 300% 100%; animation: rainbow 3s ease infinite; transition: width 0.5s ease-out; }
-    
-    /* Lesson Card Styles - PERBAIKAN UTAMA */
-    .lesson-card {
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
+    /* XP Bar Styles */
+    .xp-bar-container {
+      background: linear-gradient(135deg, #1e1e2e 0%, #2d2d3f 100%);
+      border: 2px solid #4f46e5;
+      border-radius: 12px;
       overflow: hidden;
+      position: relative;
     }
-    .lesson-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    .xp-bar-fill {
+      background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899, #f59e0b);
+      background-size: 300% 100%;
+      animation: rainbow 3s ease infinite;
+      transition: width 0.5s ease-out;
+      border-radius: 10px;
     }
-    .lesson-card.completed {
-      border-color: #10b981 !important;
+    .xp-bar-glow {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
     }
-    .lesson-card.completed::after {
-      content: '✅';
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: 1.5rem;
-      animation: bounce 0.6s ease-in-out;
+    
+    /* Level Badge */
+    .level-badge {
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
     }
     
     /* Achievement Badge Styles */
     .achievement-badge {
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: pointer;
     }
-    .achievement-badge:hover {
-      transform: translateY(-5px) scale(1.05);
-    }
-    .achievement-badge.locked {
-      filter: grayscale(100%) opacity(0.5);
-    }
-    .achievement-badge.unlocked {
-      animation: glow 2s ease-in-out infinite;
+    .achievement-badge:hover { transform: translateY(-5px) scale(1.05); }
+    .achievement-badge.locked { filter: grayscale(100%) opacity(0.5); }
+    .achievement-badge.unlocked { animation: glow 2s ease-in-out infinite; }
+    .achievement-badge.rare { border: 2px solid #f59e0b; }
+    .achievement-badge.epic { border: 2px solid #8b5cf6; }
+    .achievement-badge.legendary { border: 2px solid #ec4899; box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); }
+    
+    /* Streak Flame */
+    .streak-flame {
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulse 1s ease-in-out infinite;
     }
     
-    /* Quiz Option Styles */
-    .quiz-option {
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-    .quiz-option:hover:not(.disabled) {
-      transform: translateX(4px);
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
-    }
-    .quiz-option.selected {
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-      border-color: #7c3aed;
-      transform: scale(1.02);
-    }
-    .quiz-option.correct {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-color: #10b981;
-      animation: popIn 0.4s ease-out;
-    }
-    .quiz-option.incorrect {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      border-color: #ef4444;
-      animation: shake 0.3s ease-in-out;
-    }
-    .quiz-option.disabled {
-      pointer-events: none;
-      opacity: 0.7;
-    }
+    /* Leaderboard Rank */
+    .rank-1 { background: linear-gradient(135deg, #ffd700, #ffb700); border-color: #ffd700; }
+    .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); border-color: #c0c0c0; }
+    .rank-3 { background: linear-gradient(135deg, #cd7f32, #b87333); border-color: #cd7f32; }
+    
+    /* Quiz Option */
+    .quiz-option { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
+    .quiz-option:hover:not(.disabled) { transform: translateX(4px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
+    .quiz-option.selected { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-color: #7c3aed; transform: scale(1.02); }
+    .quiz-option.correct { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #10b981; animation: popIn 0.4s ease-out; }
+    .quiz-option.incorrect { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-color: #ef4444; animation: shake 0.3s ease-in-out; }
+    .quiz-option.disabled { pointer-events: none; opacity: 0.7; }
+    
+    /* Progress Ring */
+    .progress-ring { transform: rotate(-90deg); }
+    .progress-ring-circle { transition: stroke-dashoffset 0.5s ease-out; }
     
     /* Daily Challenge Card */
     .daily-challenge-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      border: 1px solid rgba(99, 102, 241, 0.3);
       transition: all 0.3s ease;
-      cursor: pointer;
     }
-    .daily-challenge-card:hover {
-      transform: translateY(-2px);
-    }
-    .daily-challenge-card.completed {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
-      border-color: rgba(16, 185, 129, 0.4);
-    }
-    
-    /* Code Editor */
-    .code-editor {
-      background: linear-gradient(135deg, #1e1e2e 0%, #2d2d3f 100%);
-      border: 1px solid #3d3d5c;
-    }
-    
-    /* Confetti */
-    .confetti-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 9999;
-      overflow: hidden;
-    }
-    .confetti {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      animation: confetti 3s ease-out forwards;
-    }
+    .daily-challenge-card:hover { border-color: rgba(99, 102, 241, 0.6); transform: translateY(-2px); }
+    .daily-challenge-card.completed { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-color: rgba(16, 185, 129, 0.4); }
     
     /* XP Popup */
     .xp-popup {
@@ -149,48 +123,25 @@
       z-index: 1000;
       animation: floatUp 1s ease-out forwards;
     }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-50px); }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+    
+    /* Stats Card */
+    .stat-card { transition: all 0.3s ease; }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+    
+    /* Unlock Overlay */
+    .unlock-overlay {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(139, 92, 246, 0.95));
+      backdrop-filter: blur(10px);
     }
     
-    /* Modal Overlay */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    
-    /* Progress Bar */
-    .progress-bar {
-      transition: width 0.5s ease-out;
-    }
-    
-    /* Button hover effects */
-    .btn-primary {
-      transition: all 0.3s ease;
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    /* Section card */
-    .section-card {
-      transition: all 0.3s ease;
-    }
-    .section-card:hover {
-      transform: translateY(-2px);
-    }
+    /* Confetti Container */
+    .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden; }
+    .confetti { position: absolute; width: 10px; height: 10px; animation: confetti 3s ease-out forwards; }
   </style>
-</head>
-<body class="h-full bg-slate-900 text-slate-100 overflow-auto">
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full font-sans-main bg-slate-900 text-slate-100 overflow-auto">
   <div id="app" class="h-full w-full flex flex-col">
    <!-- Confetti Container -->
    <div id="confetti-container" class="confetti-container"></div>
@@ -198,14 +149,13 @@
    <!-- XP Popup Container -->
    <div id="xp-popup-container"></div>
    
-   <!-- Header -->
+   <!-- Header with XP Bar -->
    <header class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 shadow-lg sticky top-0 z-40">
     <div class="max-w-7xl mx-auto">
      <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-3">
-       <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center animate-bounce cursor-pointer hover:bg-white/30 transition-colors" onclick="showProfile()">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+       <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center animate-bounce cursor-pointer" onclick="showProfile()">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
        </div>
        <div>
@@ -214,9 +164,10 @@
        </div>
       </div>
       
+      <!-- Level & XP Display -->
       <div class="flex items-center gap-4">
        <!-- Streak -->
-       <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl cursor-pointer hover:bg-white/20 transition-all" onclick="showDailyChallenges()">
+       <div id="streak-display" class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl cursor-pointer hover:bg-white/20 transition-all" onclick="showDailyChallenges()">
         <span class="text-2xl animate-pulse">🔥</span>
         <div>
          <p id="streak-count" class="text-white font-bold text-lg">0</p>
@@ -224,9 +175,9 @@
         </div>
        </div>
        
-       <!-- Level -->
-       <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl cursor-pointer hover:bg-white/20 transition-all" onclick="showLeaderboard()">
-        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+       <!-- Level Badge -->
+       <div id="level-display" class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl cursor-pointer hover:bg-white/20 transition-all" onclick="showLeaderboard()">
+        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center animate-glow">
          <span id="level-number" class="text-2xl font-bold text-white">1</span>
         </div>
         <div class="text-left">
@@ -235,8 +186,8 @@
         </div>
        </div>
        
-       <!-- XP -->
-       <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl cursor-pointer hover:bg-white/20 transition-all" onclick="showAchievements()">
+       <!-- XP Points -->
+       <div id="xp-display" class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl cursor-pointer hover:bg-white/20 transition-all" onclick="showAchievements()">
         <span class="text-2xl">⭐</span>
         <div>
          <p id="xp-points" class="text-white font-bold text-lg">0</p>
@@ -247,10 +198,10 @@
      </div>
      
      <!-- XP Progress Bar -->
-     <div class="h-6 bg-slate-800 rounded-xl overflow-hidden relative border-2 border-indigo-500">
+     <div class="xp-bar-container h-6 relative">
       <div id="xp-bar-fill" class="xp-bar-fill h-full" style="width: 0%"></div>
       <div class="absolute inset-0 flex items-center justify-center">
-       <span id="xp-progress-text" class="text-white text-xs font-bold">0 / 100 XP ke Level 2</span>
+       <span id="xp-progress-text" class="text-white text-xs font-bold drop-shadow-lg">0 / 100 XP ke Level 2</span>
       </div>
      </div>
     </div>
@@ -258,14 +209,13 @@
    
    <main class="flex-1 overflow-auto">
     <div class="max-w-7xl mx-auto p-6">
-     
      <!-- Profile Modal -->
-     <div id="profile-modal" class="hidden" style="position: fixed; inset: 0; z-index: 50;">
-      <div class="modal-overlay" onclick="closeProfile()"></div>
-      <div class="bg-slate-800 rounded-2xl p-6 max-w-md w-full relative animate-pop-in z-10" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-       <button onclick="closeProfile()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
+     <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeProfile()"></div>
+      <div class="bg-slate-800 rounded-2xl p-6 max-w-md w-full relative animate-pop-in z-10">
+       <button onclick="closeProfile()" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
        <div class="text-center mb-6">
-        <div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+        <div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center animate-glow">
          <span id="profile-level" class="text-4xl font-bold text-white">1</span>
         </div>
         <h2 id="profile-name" class="text-2xl font-bold text-white">Pembelajar C</h2>
@@ -273,26 +223,1360 @@
        </div>
        
        <div class="grid grid-cols-3 gap-4 mb-6">
-        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+        <div class="stat-card bg-slate-700/50 rounded-xl p-4 text-center">
          <p class="text-3xl font-bold text-yellow-400" id="profile-xp">0</p>
          <p class="text-slate-400 text-xs">Total XP</p>
         </div>
-        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+        <div class="stat-card bg-slate-700/50 rounded-xl p-4 text-center">
          <p class="text-3xl font-bold text-orange-400" id="profile-streak">0</p>
          <p class="text-slate-400 text-xs">Streak Hari</p>
         </div>
-        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+        <div class="stat-card bg-slate-700/50 rounded-xl p-4 text-center">
          <p class="text-3xl font-bold text-green-400" id="profile-lessons">0</p>
          <p class="text-slate-400 text-xs">Topik Selesai</p>
         </div>
        </div>
        
-       <div class="bg-slate-700/50 rounded-xl p-4">
+       <div class="bg-slate-700/50 rounded-xl p-4 mb-4">
         <h3 class="font-bold text-white mb-3">📊 Statistik</h3>
         <div class="space-y-2 text-sm">
-         <div class="flex justify-between"><span class="text-slate-400">Kuis Selesai</span><span id="profile-quizzes" class="text-white font-bold">0</span></div>
-         <div class="flex justify-between"><span class="text-slate-400">Rata-rata Skor</span><span id="profile-avg-score" class="text-white font-bold">0%</span></div>
-         <div class="flex justify-between"><span class="text-slate-400">Tantangan</span><span id="profile-challenges" class="text-white font-bold">0</span></div>
-         <div class="flex justify-between"><span class="text-slate-400">Achievements</span><span id="profile-achievements" class="text-white font-bold">0/0</span></div>
+         <div class="flex justify-between">
+          <span class="text-slate-400">Kuis Selesai</span>
+          <span id="profile-quizzes" class="text-white font-bold">0</span>
+         </div>
+         <div class="flex justify-between">
+          <span class="text-slate-400">Rata-rata Skor Kuis</span>
+          <span id="profile-avg-score" class="text-white font-bold">0%</span>
+         </div>
+         <div class="flex justify-between">
+          <span class="text-slate-400">Tantangan Selesai</span>
+          <span id="profile-challenges" class="text-white font-bold">0</span>
+         </div>
+         <div class="flex justify-between">
+          <span class="text-slate-400">Achievements</span>
+          <span id="profile-achievements" class="text-white font-bold">0/0</span>
+         </div>
         </div>
        </div>
+       
+       <button onclick="showAchievements(); closeProfile();" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-bold transition-all text-white">
+        🏆 Lihat Achievements
+       </button>
+      </div>
+     </div>
+     
+     <!-- Achievements Modal -->
+     <div id="achievements-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeAchievements()"></div>
+      <div class="bg-slate-800 rounded-2xl p-6 max-w-4xl w-full relative animate-pop-in z-10 max-h-[90vh] overflow-y-auto">
+       <button onclick="closeAchievements()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
+       <div class="text-center mb-6">
+        <h2 class="text-3xl font-bold text-white mb-2">🏆 Achievements</h2>
+        <p id="achievements-count" class="text-indigo-300">0 / 0 Terbuka</p>
+       </div>
+       
+       <!-- Achievement Categories -->
+       <div class="mb-6">
+        <h3 class="text-lg font-bold text-yellow-400 mb-3">🎖️ Legendary</h3>
+        <div id="legendary-achievements" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+       </div>
+       
+       <div class="mb-6">
+        <h3 class="text-lg font-bold text-purple-400 mb-3">💎 Epic</h3>
+        <div id="epic-achievements" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+       </div>
+       
+       <div class="mb-6">
+        <h3 class="text-lg font-bold text-orange-400 mb-3">⭐ Rare</h3>
+        <div id="rare-achievements" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+       </div>
+       
+       <div>
+        <h3 class="text-lg font-bold text-slate-400 mb-3">📋 Common</h3>
+        <div id="common-achievements" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+       </div>
+      </div>
+     </div>
+     
+     <!-- Leaderboard Modal -->
+     <div id="leaderboard-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeLeaderboard()"></div>
+      <div class="bg-slate-800 rounded-2xl p-6 max-w-2xl w-full relative animate-pop-in z-10">
+       <button onclick="closeLeaderboard()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
+       <div class="text-center mb-6">
+        <h2 class="text-3xl font-bold text-white mb-2">🏅 Leaderboard</h2>
+        <p class="text-indigo-300">Top Pembelajar C</p>
+       </div>
+       
+       <div id="leaderboard-list" class="space-y-3"></div>
+       
+       <div class="mt-6 bg-slate-700/50 rounded-xl p-4">
+        <h3 class="font-bold text-white mb-3">📈 Peringkat Anda</h3>
+        <div class="flex items-center justify-between">
+         <div class="flex items-center gap-3">
+          <div id="user-rank-badge" class="w-12 h-12 bg-slate-600 rounded-xl flex items-center justify-center">
+           <span id="user-rank-number" class="text-xl font-bold text-white">-</span>
+          </div>
+          <div>
+           <p id="user-rank-name" class="text-white font-bold">Anda</p>
+           <p id="user-rank-xp" class="text-slate-400 text-sm">0 XP</p>
+          </div>
+         </div>
+         <div class="text-right">
+          <p id="user-rank-level" class="text-indigo-400 font-bold">Level 1</p>
+          <p class="text-slate-400 text-sm" id="user-rank-title">Pemula</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     
+     <!-- Daily Challenges Modal -->
+     <div id="daily-challenges-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeDailyChallenges()"></div>
+      <div class="bg-slate-800 rounded-2xl p-6 max-w-2xl w-full relative animate-pop-in z-10">
+       <button onclick="closeDailyChallenges()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
+       <div class="text-center mb-6">
+        <div class="flex items-center justify-center gap-2 mb-2">
+         <span class="text-4xl animate-pulse">🔥</span>
+         <h2 class="text-3xl font-bold text-white">Daily Challenge</h2>
+        </div>
+        <p id="daily-date" class="text-indigo-300"></p>
+        <p id="daily-streak-info" class="text-orange-400 font-bold mt-2"></p>
+       </div>
+       
+       <div id="daily-challenges-list" class="space-y-4"></div>
+       
+       <div class="mt-6 bg-gradient-to-r from-indigo-900/50 to-purple-900/50 rounded-xl p-4 border border-indigo-500/30">
+        <h3 class="font-bold text-white mb-2">🎯 Bonus Harian</h3>
+        <p class="text-slate-300 text-sm mb-3">Selesaikan semua daily challenge untuk bonus XP!</p>
+        <div class="flex items-center gap-4">
+         <div class="flex-1">
+          <div class="bg-slate-700 rounded-full h-3 overflow-hidden">
+           <div id="daily-progress-fill" class="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all" style="width: 0%"></div>
+          </div>
+         </div>
+         <span id="daily-progress-text" class="text-white font-bold">0/3</span>
+        </div>
+       </div>
+      </div>
+     </div>
+     
+     <!-- Level Up Modal -->
+     <div id="levelup-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+      <div class="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-8 max-w-md w-full relative animate-pop-in z-10 text-center border-2 border-indigo-500">
+       <div class="absolute inset-0 overflow-hidden">
+        <div id="levelup-confetti"></div>
+       </div>
+       <div class="relative z-10">
+        <div class="text-8xl mb-4 animate-bounce">🎉</div>
+        <h2 class="text-4xl font-bold text-white mb-2 animate-level-up">LEVEL UP!</h2>
+        <div class="w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mx-auto mb-4 flex items-center justify-center animate-glow">
+         <span id="new-level" class="text-6xl font-bold text-white">2</span>
+        </div>
+        <p class="text-indigo-300 text-xl mb-4">Selamat! Anda naik ke Level <span id="new-level-text">2</span></p>
+        <p id="new-level-title" class="text-purple-300 font-bold text-lg mb-6">Pemula Berpengalaman</p>
+        <div class="bg-white/10 rounded-xl p-4 mb-6">
+         <p class="text-yellow-400 font-bold text-lg">+100 XP Bonus!</p>
+        </div>
+        <button onclick="closeLevelUp()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-bold transition-all text-white">
+         Lanjutkan Perjalanan 🚀
+        </button>
+       </div>
+      </div>
+     </div>
+     
+     <!-- Achievement Unlock Modal -->
+     <div id="achievement-unlock-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+      <div class="bg-gradient-to-br from-yellow-900 to-orange-900 rounded-3xl p-8 max-w-md w-full relative animate-pop-in z-10 text-center border-2 border-yellow-500">
+       <div class="text-6xl mb-4 animate-bounce">🏆</div>
+       <h2 class="text-2xl font-bold text-yellow-400 mb-2">ACHIEVEMENT TERBUKA!</h2>
+       <div id="unlocked-achievement-icon" class="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center text-5xl animate-glow"></div>
+       <h3 id="unlocked-achievement-name" class="text-xl font-bold text-white mb-2"></h3>
+       <p id="unlocked-achievement-desc" class="text-slate-300 mb-4"></p>
+       <p class="text-yellow-400 font-bold">+<span id="unlocked-achievement-xp">50</span> XP</p>
+       <button onclick="closeAchievementUnlock()" class="mt-6 px-8 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 rounded-xl font-bold transition-all text-white">
+         Awesome! 👍
+       </button>
+      </div>
+     </div>
+     
+     <!-- Menu Pilih Topik -->
+     <div id="menu-screen" class="animate-fade-in">
+      <!-- Daily Challenge Banner -->
+      <div id="daily-banner" class="daily-challenge-card rounded-2xl p-4 mb-8 cursor-pointer" onclick="showDailyChallenges()">
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+         <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-2xl animate-pulse">
+          🔥
+         </div>
+         <div>
+          <h3 class="font-bold text-white">Daily Challenge</h3>
+          <p id="daily-banner-text" class="text-slate-400 text-sm">Selesaikan 3 tantangan hari ini!</p>
+         </div>
+        </div>
+        <div class="flex items-center gap-2">
+         <div class="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+          <div id="daily-banner-progress" class="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all" style="width: 0%"></div>
+         </div>
+         <span id="daily-banner-count" class="text-white font-bold">0/3</span>
+        </div>
+       </div>
+      </div>
+      
+      <h2 class="text-3xl font-bold text-white mb-8">Pilih Topik Pembelajaran</h2>
+      
+      <!-- Section 1: Dasar C -->
+      <div class="mb-8">
+       <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-indigo-300">📖 Dasar Bahasa C</h3>
+        <div class="flex items-center gap-2">
+         <span class="text-xs text-slate-400">Progress:</span>
+         <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+          <div id="progress-dasar" class="h-full bg-indigo-500 transition-all" style="width: 0%"></div>
+         </div>
+         <span id="progress-dasar-text" class="text-xs text-indigo-300">0/4</span>
+        </div>
+       </div>
+       <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <button onclick="openLesson('struktur')" class="group">
+         <div class="bg-gradient-to-br from-rose-900 to-rose-800 rounded-2xl p-8 border-2 border-rose-600 hover:border-rose-400 transition-all h-full">
+          <div class="text-6xl mb-4">
+           🏗️
+          </div>
+          <h3 class="text-2xl font-bold text-rose-200 mb-2">Struktur Bahasa C</h3>
+          <p class="text-slate-300 mb-4">Pelajari struktur dasar program C</p>
+          <div class="inline-block px-4 py-2 bg-rose-600 group-hover:bg-rose-500 rounded-lg text-sm font-medium transition-colors animate-fade-in">
+           Mulai Belajar →
+          </div>
+         </div></button>
+        </button>
+        <button onclick="openLesson('sintaks')" class="group">
+         <div class="bg-gradient-to-br from-fuchsia-900 to-fuchsia-800 rounded-2xl p-8 border-2 border-fuchsia-600 hover:border-fuchsia-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-sintaks" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">✍️</div>
+          <h3 class="text-2xl font-bold text-fuchsia-200 mb-2">Sintaks & Variabel</h3>
+          <p class="text-slate-300 mb-4">Belajar sintaks dan cara deklarasi variabel</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-fuchsia-600 group-hover:bg-fuchsia-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+50 XP</span>
+          </div>
+         </div>
+        </button>
+        <button onclick="openLesson('tipe_data')" class="group">
+         <div class="bg-gradient-to-br from-violet-900 to-violet-800 rounded-2xl p-8 border-2 border-violet-600 hover:border-violet-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-tipe_data" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">🔢</div>
+          <h3 class="text-2xl font-bold text-violet-200 mb-2">Tipe Data</h3>
+          <p class="text-slate-300 mb-4">Pelajari berbagai tipe data dalam C</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-violet-600 group-hover:bg-violet-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+50 XP</span>
+          </div>
+         </div>
+        </button>
+        <button onclick="openLesson('input_output')" class="group">
+         <div class="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 border-2 border-blue-600 hover:border-blue-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-input_output" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">📤</div>
+          <h3 class="text-2xl font-bold text-blue-200 mb-2">Input & Output</h3>
+          <p class="text-slate-300 mb-4">Pelajari printf() untuk menampilkan data</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-blue-600 group-hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+50 XP</span>
+          </div>
+         </div>
+        </button>
+       </div>
+      </div>
+      
+      <!-- Section 2: Kontrol Alur -->
+      <div class="mb-8">
+       <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-indigo-300">🔄 Kontrol Alur Program</h3>
+        <div class="flex items-center gap-2">
+         <span class="text-xs text-slate-400">Progress:</span>
+         <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+          <div id="progress-kontrol" class="h-full bg-indigo-500 transition-all" style="width: 0%"></div>
+         </div>
+         <span id="progress-kontrol-text" class="text-xs text-indigo-300">0/4</span>
+        </div>
+       </div>
+       <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <button onclick="openLesson('if_else')" class="group">
+         <div class="bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-8 border-2 border-purple-600 hover:border-purple-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-if_else" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">🔀</div>
+          <h3 class="text-2xl font-bold text-purple-200 mb-2">If-Else</h3>
+          <p class="text-slate-300 mb-4">Membuat keputusan dengan if-else</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-purple-600 group-hover:bg-purple-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+75 XP</span>
+          </div>
+         </div>
+        </button>
+        <button onclick="openLesson('switch')" class="group">
+         <div class="bg-gradient-to-br from-pink-900 to-pink-800 rounded-2xl p-8 border-2 border-pink-600 hover:border-pink-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-switch" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">🎚️</div>
+          <h3 class="text-2xl font-bold text-pink-200 mb-2">Switch Case</h3>
+          <p class="text-slate-300 mb-4">Pernyataan switch untuk pilihan ganda</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-pink-600 group-hover:bg-pink-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+75 XP</span>
+          </div>
+         </div>
+        </button>
+        <button onclick="openLesson('for_loop')" class="group">
+         <div class="bg-gradient-to-br from-green-900 to-green-800 rounded-2xl p-8 border-2 border-green-600 hover:border-green-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-for_loop" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">🔁</div>
+          <h3 class="text-2xl font-bold text-green-200 mb-2">For Loop</h3>
+          <p class="text-slate-300 mb-4">Perulangan dengan for loop</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-green-600 group-hover:bg-green-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+75 XP</span>
+          </div>
+         </div>
+        </button>
+        <button onclick="openLesson('while_loop')" class="group">
+         <div class="bg-gradient-to-br from-cyan-900 to-cyan-800 rounded-2xl p-8 border-2 border-cyan-600 hover:border-cyan-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-while_loop" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">🔄</div>
+          <h3 class="text-2xl font-bold text-cyan-200 mb-2">While Loop</h3>
+          <p class="text-slate-300 mb-4">Perulangan dengan while loop</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-cyan-600 group-hover:bg-cyan-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+75 XP</span>
+          </div>
+         </div>
+        </button>
+       </div>
+      </div>
+      
+      <!-- Section 3: Struktur Data -->
+      <div class="mb-8">
+       <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-indigo-300">📚 Struktur Data</h3>
+        <div class="flex items-center gap-2">
+         <span class="text-xs text-slate-400">Progress:</span>
+         <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+          <div id="progress-struktur" class="h-full bg-indigo-500 transition-all" style="width: 0%"></div>
+         </div>
+         <span id="progress-struktur-text" class="text-xs text-indigo-300">0/2</span>
+        </div>
+       </div>
+       <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <button onclick="openLesson('array')" class="group">
+         <div class="bg-gradient-to-br from-orange-900 to-orange-800 rounded-2xl p-8 border-2 border-orange-600 hover:border-orange-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-array" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">📦</div>
+          <h3 class="text-2xl font-bold text-orange-200 mb-2">Array</h3>
+          <p class="text-slate-300 mb-4">Deklarasi dan akses data dalam array</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-orange-600 group-hover:bg-orange-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+100 XP</span>
+          </div>
+         </div>
+        </button>
+        <button onclick="openLesson('nested_loop')" class="group">
+         <div class="bg-gradient-to-br from-indigo-900 to-indigo-800 rounded-2xl p-8 border-2 border-indigo-600 hover:border-indigo-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-nested_loop" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">⚙️</div>
+          <h3 class="text-2xl font-bold text-indigo-200 mb-2">Nested Loop</h3>
+          <p class="text-slate-300 mb-4">Loop dalam loop untuk pattern</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-indigo-600 group-hover:bg-indigo-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Belajar →
+           </div>
+           <span class="text-yellow-400 text-sm">+100 XP</span>
+          </div>
+         </div>
+        </button>
+       </div>
+      </div>
+      
+      <!-- Section 4: Tantangan & Kuis -->
+      <div class="mb-8">
+       <h3 class="text-lg font-bold text-indigo-300 mb-4">🎯 Tantangan & Kuis</h3>
+       <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <button onclick="openChallenge()" class="group">
+         <div class="bg-gradient-to-br from-yellow-900 to-yellow-800 rounded-2xl p-8 border-2 border-yellow-600 hover:border-yellow-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-challenge" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">🏆</div>
+          <h3 class="text-2xl font-bold text-yellow-200 mb-2">Tantangan Koding</h3>
+          <p class="text-slate-300 mb-4">Buat program lengkap menggabungkan semua konsep</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-yellow-600 group-hover:bg-yellow-500 rounded-lg text-sm font-medium transition-colors">
+            Buka Tantangan →
+           </div>
+           <span class="text-yellow-400 text-sm">+200 XP</span>
+          </div>
+         </div>
+        </button>
+        <button onclick="openQuiz()" class="group">
+         <div class="bg-gradient-to-br from-red-900 to-red-800 rounded-2xl p-8 border-2 border-red-600 hover:border-red-400 transition-all h-full relative overflow-hidden">
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <span id="badge-quiz" class="text-2xl">🔒</span>
+          </div>
+          <div class="text-6xl mb-4">📝</div>
+          <h3 class="text-2xl font-bold text-red-200 mb-2">Kuis (20 Soal)</h3>
+          <p class="text-slate-300 mb-4">Tes pemahaman dengan 20 soal pilihan ganda</p>
+          <div class="flex items-center justify-between">
+           <div class="inline-block px-4 py-2 bg-red-600 group-hover:bg-red-500 rounded-lg text-sm font-medium transition-colors">
+            Mulai Kuis →
+           </div>
+           <span class="text-yellow-400 text-sm">+150 XP</span>
+          </div>
+         </div>
+        </button>
+       </div>
+      </div>
+     </div>
+     
+     <!-- Halaman Pembelajaran -->
+     <div id="learning-screen" class="hidden animate-fade-in">
+      <div class="flex items-center justify-between mb-6">
+       <div class="flex items-center gap-4">
+        <button onclick="backToMenu()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"> ← Kembali </button>
+        <h2 id="lesson-title" class="text-3xl font-bold text-white"></h2>
+       </div>
+       <div class="flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-xl">
+        <span class="text-yellow-400">⭐</span>
+        <span id="lesson-xp-reward" class="text-white font-bold">+50 XP</span>
+       </div>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-6 mb-6">
+       <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+        <h3 class="text-xl font-bold text-indigo-300 mb-4">📚 Penjelasan Materi</h3>
+        <div id="theory-content" class="text-slate-300 text-sm space-y-4 leading-relaxed max-h-96 overflow-y-auto"></div>
+       </div>
+       <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+        <h3 class="text-xl font-bold text-green-300 mb-4">💡 Contoh Kode</h3>
+        <div class="code-editor rounded-lg overflow-hidden mb-3">
+         <div class="px-4 py-2 bg-slate-700 text-xs text-slate-400 border-b border-slate-600">
+          example.c
+         </div>
+         <pre id="example-code" class="p-4 text-xs font-mono-code text-slate-100 overflow-x-auto"></pre>
+        </div>
+        <div class="bg-slate-700/50 rounded-lg p-3">
+         <p class="text-xs text-slate-400 mb-2">Output:</p>
+         <div id="example-output" class="text-xs font-mono-code text-green-400"></div>
+        </div>
+       </div>
+      </div>
+      <div class="grid lg:grid-cols-3 gap-6">
+       <div class="lg:col-span-2">
+        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 mb-6">
+         <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-yellow-300">💻 Praktik Langsung</h3>
+          <div class="flex items-center gap-2">
+           <span id="practice-xp" class="text-yellow-400 text-sm">+10 XP per soal</span>
+           <button onclick="resetEditor()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors">🔄 Reset</button>
+          </div>
+         </div>
+         <div id="practice-task" class="bg-slate-700/50 rounded-lg p-4 mb-4 text-sm text-slate-300"></div>
+         <div class="code-editor rounded-lg overflow-hidden mb-4">
+          <div class="flex items-center gap-2 px-4 py-2 bg-slate-700 border-b border-slate-600">
+           <span class="w-2 h-2 rounded-full bg-red-500"></span>
+           <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+           <span class="w-2 h-2 rounded-full bg-green-500"></span>
+           <span class="ml-2 text-xs text-slate-400">main.c</span>
+          </div>
+          <div class="flex">
+           <div id="line-numbers" class="py-4 px-3 text-slate-500 text-xs font-mono-code text-right select-none border-r border-slate-700 bg-slate-700/30 min-w-12">
+            1
+           </div>
+           <textarea id="practice-editor" class="flex-1 bg-transparent text-slate-100 font-mono-code text-sm p-4 outline-none resize-none min-h-[250px]" spellcheck="false" placeholder="#include <stdio.h>
+
+int main() {
+    // Tulis kode di sini
+    
+    
+    return 0;
+}" oninput="updateLineNumbers()"></textarea>
+          </div>
+         </div>
+         <div class="flex gap-3">
+          <button onclick="runPractice()" class="flex-1 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors text-white flex items-center justify-center gap-2">
+           <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20">
+            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+           </svg>
+           Jalankan
+          </button>
+         </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div>
+          <h4 class="font-bold text-sm mb-2">📤 Output Program</h4>
+          <div class="output-box rounded-lg p-4 min-h-[120px] text-xs font-mono-code">
+           <div id="practice-output" class="text-slate-400">
+            Tekan "Jalankan" untuk melihat output...
+           </div>
+          </div>
+         </div>
+         <div>
+          <h4 class="font-bold text-sm mb-2">✅ Output Diharapkan</h4>
+          <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 min-h-[120px] text-xs font-mono-code">
+           <div id="practice-expected" class="text-green-400"></div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 h-fit">
+        <h4 class="font-bold text-sm mb-4">📊 Status</h4>
+        <div id="status-panel" class="space-y-3 text-sm">
+         <p class="text-slate-400">Mulai praktik untuk melihat status...</p>
+        </div>
+       </div>
+      </div>
+     </div>
+     
+     <!-- Halaman Tantangan -->
+     <div id="challenge-screen" class="hidden animate-fade-in">
+      <div class="flex items-center justify-between mb-6">
+       <div class="flex items-center gap-4">
+        <button onclick="backToMenu()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"> ← Kembali </button>
+        <h2 class="text-3xl font-bold text-white">🏆 Tantangan Koding</h2>
+       </div>
+       <div class="flex items-center gap-2 bg-yellow-900/50 px-4 py-2 rounded-xl border border-yellow-600">
+        <span class="text-yellow-400">⭐</span>
+        <span class="text-white font-bold">+200 XP</span>
+       </div>
+      </div>
+      <div class="grid lg:grid-cols-3 gap-6">
+       <div class="lg:col-span-2">
+        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 mb-6">
+         <h3 class="text-xl font-bold text-yellow-300 mb-4">📝 Deskripsi Tantangan</h3>
+         <div id="challenge-desc" class="bg-slate-700/50 rounded-lg p-4 text-slate-300 text-sm leading-relaxed mb-4"></div>
+         <div class="code-editor rounded-lg overflow-hidden mb-4">
+          <div class="flex items-center gap-2 px-4 py-2 bg-slate-700 border-b border-slate-600">
+           <span class="w-2 h-2 rounded-full bg-red-500"></span>
+           <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+           <span class="w-2 h-2 rounded-full bg-green-500"></span>
+           <span class="ml-2 text-xs text-slate-400">challenge.c</span>
+          </div>
+          <div class="flex">
+           <div id="challenge-line-numbers" class="py-4 px-3 text-slate-500 text-xs font-mono-code text-right select-none border-r border-slate-700 bg-slate-700/30 min-w-12">
+            1
+           </div>
+           <textarea id="challenge-editor" class="flex-1 bg-transparent text-slate-100 font-mono-code text-sm p-4 outline-none resize-none min-h-[350px]" spellcheck="false" placeholder="#include <stdio.h>
+
+int main() {
+    // Selesaikan tantangan di sini
+    
+    
+    
+    return 0;
+}" oninput="updateChallengeLineNumbers()"></textarea>
+          </div>
+         </div>
+         <div class="flex gap-3">
+          <button onclick="runChallenge()" class="flex-1 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors text-white"> Jalankan & Periksa </button>
+          <button onclick="resetChallengeEditor()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Reset</button>
+         </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div>
+          <h4 class="font-bold text-sm mb-2">📤 Output Program</h4>
+          <div class="output-box rounded-lg p-4 min-h-[150px] text-xs font-mono-code">
+           <div id="challenge-output" class="text-slate-400">
+            Tekan "Jalankan" untuk melihat output...
+           </div>
+          </div>
+         </div>
+         <div>
+          <h4 class="font-bold text-sm mb-2">✅ Output Diharapkan</h4>
+          <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 min-h-[150px] text-xs font-mono-code">
+           <div id="challenge-expected" class="text-green-400"></div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 h-fit">
+        <h4 class="font-bold text-sm mb-4">🎯 Petunjuk</h4>
+        <div id="challenge-hints" class="text-xs text-slate-300 space-y-2"></div>
+       </div>
+      </div>
+     </div>
+     
+     <!-- Quiz Screen -->
+     <div id="quiz-screen" class="hidden animate-fade-in">
+      <div class="flex items-center justify-between mb-6">
+       <div class="flex items-center gap-4">
+        <button onclick="backToMenu()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"> ← Kembali </button>
+        <h2 class="text-3xl font-bold text-white">📝 Kuis (20 Soal)</h2>
+       </div>
+       <div class="flex items-center gap-2 bg-red-900/50 px-4 py-2 rounded-xl border border-red-600">
+        <span class="text-red-400">⭐</span>
+        <span class="text-white font-bold">+150 XP</span>
+       </div>
+      </div>
+      
+      <!-- Nama Siswa -->
+      <div id="student-input-screen" class="animate-fade-in">
+       <div class="max-w-md mx-auto">
+        <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+         <div class="text-center mb-6">
+          <p class="text-6xl mb-4">📝</p>
+          <h3 class="text-2xl font-bold text-white mb-2">Masukkan Nama Anda</h3>
+          <p class="text-slate-400">Hasil kuis akan disimpan di profil Anda</p>
+         </div>
+         <input id="student-name-input" type="text" placeholder="Nama Lengkap" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 mb-4 focus:outline-none focus:border-indigo-500">
+         <button onclick="startQuiz()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold transition-colors text-white"> Mulai Kuis → </button>
+        </div>
+       </div>
+      </div>
+      
+      <!-- Soal Kuis -->
+      <div id="quiz-content-screen" class="hidden">
+       <div class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+         <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 mb-6 quiz-card animate-slide-in-up">
+          <div class="flex items-center justify-between mb-6">
+           <div>
+            <h3 id="quiz-question-num" class="text-lg font-bold text-indigo-300 mb-1">Soal 1 / 20</h3>
+            <div class="w-96 h-2 bg-slate-700 rounded-full overflow-hidden">
+             <div id="quiz-progress-bar-fill" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500" style="width: 5%"></div>
+            </div>
+           </div>
+           <div class="px-4 py-2 bg-indigo-600/20 border border-indigo-600 rounded-lg">
+            <span id="quiz-score-display" class="text-indigo-300 font-bold">0</span>
+            <span class="text-slate-400">/20</span>
+           </div>
+          </div>
+          <div class="bg-slate-700/50 rounded-lg p-6 mb-8 border-l-4 border-indigo-500">
+           <p id="quiz-question" class="text-slate-200 text-lg leading-relaxed font-medium"></p>
+          </div>
+          <div id="quiz-options" class="space-y-3 mb-8"></div>
+          <div class="flex gap-3">
+           <button onclick="previousQuizQuestion()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all" id="btn-prev"> ← Sebelumnya </button>
+           <button onclick="nextQuizQuestion()" class="flex-1 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-lg font-medium transition-all text-white" id="btn-next"> Selanjutnya → </button>
+          </div>
+         </div>
+        </div>
+        
+        <!-- Quiz Progress -->
+        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 h-fit sticky top-24">
+         <h4 class="font-bold text-sm mb-4 text-indigo-300">📊 Progress Kuis</h4>
+         <div class="mb-6">
+          <div class="text-center mb-3">
+           <div class="text-3xl font-bold text-indigo-400" id="quiz-progress-percent">
+            0%
+           </div>
+           <p id="quiz-progress-text" class="text-xs text-slate-400 mt-1">Soal 1 / 20</p>
+          </div>
+          <div class="bg-slate-700 rounded-full h-3 overflow-hidden">
+           <div id="quiz-progress-fill-mini" class="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500" style="width: 5%"></div>
+          </div>
+         </div>
+         <div class="bg-slate-700/50 rounded-lg p-4 mb-4">
+          <p class="text-slate-400 text-xs mb-3">Jawaban Soal:</p>
+          <div id="quiz-indicator-container" class="grid grid-cols-5 gap-2"></div>
+         </div>
+         <div class="bg-indigo-900/30 border border-indigo-600 rounded-lg p-3 text-xs">
+          <p class="text-slate-400 mb-2">Total Terjawab:</p>
+          <p id="quiz-answered-count" class="text-indigo-300 font-bold text-lg">0/20</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      
+      <!-- Hasil Kuis -->
+      <div id="quiz-result-screen" class="hidden">
+       <div class="max-w-2xl mx-auto">
+        <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 text-center animate-pop-in">
+         <p class="text-7xl mb-6 score-badge" id="result-emoji">🎉</p>
+         <h3 class="text-3xl font-bold text-white mb-2">Kuis Selesai!</h3>
+         <p id="student-name-display" class="text-slate-300 mb-8 text-lg"></p>
+         
+         <div class="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border border-indigo-600 rounded-2xl p-8 mb-8">
+          <p class="text-slate-300 mb-3">Nilai Akhir</p>
+          <p id="result-score" class="text-6xl font-bold text-indigo-400 mb-3">0/20</p>
+          <div class="flex items-center justify-center gap-2">
+           <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div id="result-percentage-bar" class="h-full bg-gradient-to-r from-green-500 to-emerald-500" style="width: 0%"></div>
+           </div>
+           <p id="result-percentage" class="text-2xl font-bold text-indigo-300 min-w-16">0%</p>
+          </div>
+         </div>
+         
+         <div class="bg-yellow-900/30 border border-yellow-600 rounded-2xl p-4 mb-6">
+          <p class="text-yellow-300 font-bold text-lg">⭐ XP Diperoleh: <span id="quiz-xp-earned">0</span></p>
+         </div>
+         
+         <div id="result-details" class="text-left bg-slate-700/50 rounded-lg p-4 mb-6 text-sm text-slate-300 space-y-2 max-h-64 overflow-y-auto"></div>
+         <button onclick="backToMenu()" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold transition-colors text-white"> Kembali ke Menu </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div>
+  
+  <script>
+    // ============================================
+    // GAMIFICATION SYSTEM
+    // ============================================
+    
+    // Game State
+    let gameState = {
+      xp: 0,
+      level: 1,
+      streak: 0,
+      lastActiveDate: null,
+      completedLessons: new Set(),
+      completedQuizzes: 0,
+      totalQuizScore: 0,
+      completedChallenges: 0,
+      achievements: new Set(),
+      dailyChallenges: {
+        date: null,
+        completed: [false, false, false]
+      },
+      userName: 'Pembelajar C'
+    };
+    
+    // Level Thresholds (XP required for each level)
+    const levelThresholds = [
+      0, 100, 250, 500, 800, 1200, 1700, 2300, 3000, 3800,
+      4700, 5700, 6800, 8000, 9300, 10700, 12200, 13800, 15500, 17300,
+      20000, 23000, 26000, 30000, 35000, 40000, 46000, 53000, 61000, 70000,
+      80000, 92000, 106000, 122000, 140000, 160000, 182000, 206000, 232000, 260000
+    ];
+    
+    // Level Titles
+    const levelTitles = [
+      'Pemula', 'Pemula Berpengalaman', 'Mahasiswa C', 'Programmer Pemula',
+      'Programmer Menengah', 'Ahli C', 'Master C', 'Guru C', 'Legenda C',
+      'Master Programmer', 'Ahli Algoritma', 'Arsitek Software', 'Master Code',
+      'Legendary Coder', 'Code Wizard', 'Code Master', 'Code Legend',
+      'Programming Guru', 'Software Architect', 'Digital Master',
+      'Code Emperor', 'Tech Legend', 'Programming Legend', 'Digital Legend',
+      'Supreme Coder', 'Ultimate Programmer', 'Coding Legend', 'Tech Master',
+      'Code God', 'Programming God', 'Digital Deity'
+    ];
+    
+    // Achievements Database
+    const achievementsDB = [
+      // Legendary (100 XP)
+      { id: 'perfect_quiz', name: 'Sempurna!', desc: 'Skor 100% di kuis', xp: 100, rarity: 'legendary', icon: '🏆', condition: () => gameState.totalQuizScore > 0 && gameState.completedQuizzes > 0 && (gameState.totalQuizScore / gameState.completedQuizzes) >= 100 },
+      { id: 'all_lessons', name: 'Master C', desc: 'Selesaikan semua materi', xp: 150, rarity: 'legendary', icon: '👑', condition: () => gameState.completedLessons.size >= 10 },
+      { id: 'streak_30', name: 'Streak Master', desc: '30 hari streak belajar', xp: 200, rarity: 'legendary', icon: '🔥', condition: () => gameState.streak >= 30 },
+      { id: 'level_10', name: 'Level 10', desc: 'Capai Level 10', xp: 100, rarity: 'legendary', icon: '⭐', condition: () => gameState.level >= 10 },
+      
+      // Epic (75 XP)
+      { id: 'first_lesson', name: 'Langkah Pertama', desc: 'Selesaikan 1 materi', xp: 25, rarity: 'epic', icon: '🎯', condition: () => gameState.completedLessons.size >= 1 },
+      { id: 'first_quiz', name: 'Pertama Kali', desc: 'Selesaikan 1 kuis', xp: 25, rarity: 'epic', icon: '📝', condition: () => gameState.completedQuizzes >= 1 },
+      { id: 'first_challenge', name: 'Penantang', desc: 'Selesaikan tantangan koding', xp: 50, rarity: 'epic', icon: '🏆', condition: () => gameState.completedChallenges >= 1 },
+      { id: 'streak_7', name: 'Semangat 7 Hari', desc: '7 hari streak belajar', xp: 50, rarity: 'epic', icon: '🔥', condition: () => gameState.streak >= 7 },
+      { id: 'level_5', name: 'Level 5', desc: 'Capai Level 5', xp: 50, rarity: 'epic', icon: '💎', condition: () => gameState.level >= 5 },
+      { id: 'half_lessons', name: 'Setengah Jalan', desc: 'Selesaikan 5 materi', xp: 50, rarity: 'epic', icon: '📚', condition: () => gameState.completedLessons.size >= 5 },
+      
+      // Rare (50 XP)
+      { id: 'streak_3', name: 'Mulai Berkobar', desc: '3 hari streak belajar', xp: 25, rarity: 'rare', icon: '✨', condition: () => gameState.streak >= 3 },
+      { id: 'quiz_80', name: 'Pintar', desc: 'Skor 80%+ di kuis', xp: 30, rarity: 'rare', icon: '🧠', condition: () => checkQuizScore(80) },
+      { id: 'quiz_90', name: 'Sangat Pintar', desc: 'Skor 90%+ di kuis', xp: 40, rarity: 'rare', icon: '🧠', condition: () => checkQuizScore(90) },
+      { id: 'level_3', name: 'Level 3', desc: 'Capai Level 3', xp: 30, rarity: 'rare', icon: '🚀', condition: () => gameState.level >= 3 },
+      { id: 'three_lessons', name: 'Rajin Belajar', desc: 'Selesaikan 3 materi', xp: 30, rarity: 'rare', icon: '📖', condition: () => gameState.completedLessons.size >= 3 },
+      { id: 'five_quizzes', name: 'Sering Berlatih', desc: 'Selesaikan 5 kuis', xp: 40, rarity: 'rare', icon: '📊', condition: () => gameState.completedQuizzes >= 5 },
+      
+      // Common (25 XP)
+      { id: 'first_xp', name: 'XP Pertama', desc: 'Dapatkan XP pertama', xp: 10, rarity: 'common', icon: '🌟', condition: () => gameState.xp >= 10 },
+      { id: 'level_2', name: ' Naik Level', desc: 'Capai Level 2', xp: 15, rarity: 'common', icon: '⬆️', condition: () => gameState.level >= 2 },
+      { id: 'two_lessons', name: 'Dua Materi', desc: 'Selesaikan 2 materi', xp: 20, rarity: 'common', icon: '📗', condition: () => gameState.completedLessons.size >= 2 },
+      { id: 'two_quizzes', name: 'Dua Kuis', desc: 'Selesaikan 2 kuis', xp: 20, rarity: 'common', icon: '📋', condition: () => gameState.completedQuizzes >= 2 },
+      { id: 'streak_2', name: 'Dua Hari Berturut', desc: '2 hari streak belajar', xp: 15, rarity: 'common', icon: '💪', condition: () => gameState.streak >= 2 },
+      { id: 'daily_complete', name: 'Harian Selesai', desc: 'Selesaikan daily challenge', xp: 25, rarity: 'common', icon: '✅', condition: () => checkDailyComplete() }
+    ];
+    
+    // Daily Challenges
+    const dailyChallengesDB = [
+      { type: 'lesson', target: 1, desc: 'Selesaikan 1 materi', xp: 20 },
+      { type: 'quiz', target: 1, desc: 'Selesaikan 1 kuis', xp: 25 },
+      { type: 'practice', target: 3, desc: 'Selesaikan 3 soal praktik', xp: 15 }
+    ];
+    
+    // Leaderboard (simulated)
+    const leaderboardData = [
+      { name: 'CodeMaster', xp: 15420, level: 12 },
+      { name: 'AlgoritmaPro', xp: 12350, level: 10 },
+      { name: 'CProgramming', xp: 9800, level: 9 },
+      { name: 'DevStar', xp: 7650, level: 8 },
+      { name: 'TechNinja', xp: 6200, level: 7 },
+      { name: 'CodeWarrior', xp: 5100, level: 6 },
+      { name: 'ByteHero', xp: 4200, level: 5 },
+      { name: 'PixelMaster', xp: 3500, level: 5 },
+      { name: 'LogicKing', xp: 2800, level: 4 },
+      { name: 'SyntaxSage', xp: 2100, level: 3 }
+    ];
+    
+    // Helper Functions
+    function checkQuizScore(threshold) {
+      return gameState.completedQuizzes > 0 && (gameState.totalQuizScore / gameState.completedQuizzes) >= threshold;
+    }
+    
+    function checkDailyComplete() {
+      return gameState.dailyChallenges.date === getTodayDate() && 
+             gameState.dailyChallenges.completed.every(c => c);
+    }
+    
+    function getTodayDate() {
+      return new Date().toISOString().split('T')[0];
+    }
+    
+    function getLevelFromXP(xp) {
+      for (let i = levelThresholds.length - 1; i >= 0; i--) {
+        if (xp >= levelThresholds[i]) return i + 1;
+      }
+      return 1;
+    }
+    
+    function getXPForLevel(level) {
+      return levelThresholds[level - 1] || 0;
+    }
+    
+    function getXPToNextLevel() {
+      const currentLevelXP = getXPForLevel(gameState.level);
+      const nextLevelXP = getXPForLevel(gameState.level + 1);
+      const currentLevelProgressXP = gameState.xp - currentLevelXP;
+      const xpNeeded = nextLevelXP - currentLevelXP;
+      return { current: currentLevelProgressXP, needed: xpNeeded, nextXP: nextLevelXP };
+    }
+    
+    function getLevelTitle(level) {
+      return levelTitles[level - 1] || 'Pemula';
+    }
+    
+    // XP System
+    function addXP(amount, reason = '') {
+      const oldLevel = gameState.level;
+      gameState.xp += amount;
+      gameState.level = getLevelFromXP(gameState.xp);
+      
+      // Show XP popup
+      showXPPopup(amount, reason);
+      
+      // Check for level up
+      if (gameState.level > oldLevel) {
+        showLevelUp(gameState.level);
+      }
+      
+      // Check achievements
+      checkAchievements();
+      
+      // Update UI
+      updateXPDisplay();
+      saveGameState();
+    }
+    
+    function showXPPopup(amount, reason) {
+      const container = document.getElementById('xp-popup-container');
+      const popup = document.createElement('div');
+      popup.className = 'xp-popup bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-full font-bold shadow-lg';
+      popup.innerHTML = `+${amount} XP${reason ? ' ' + reason : ''}`;
+      
+      // Random position near center
+      const x = window.innerWidth / 2 + (Math.random() - 0.5) * 200;
+      const y = window.innerHeight / 2;
+      popup.style.left = x + 'px';
+      popup.style.top = y + 'px';
+      
+      container.appendChild(popup);
+      
+      setTimeout(() => popup.remove(), 1000);
+    }
+    
+    function updateXPDisplay() {
+      document.getElementById('xp-points').textContent = gameState.xp.toLocaleString();
+      document.getElementById('level-number').textContent = gameState.level;
+      document.getElementById('level-title').textContent = getLevelTitle(gameState.level);
+      
+      const xpInfo = getXPToNextLevel();
+      const progressPercent = (xpInfo.current / xpInfo.needed) * 100;
+      
+      document.getElementById('xp-bar-fill').style.width = progressPercent + '%';
+      document.getElementById('xp-progress-text').textContent = 
+        `${xpInfo.current} / ${xpInfo.needed} XP ke Level ${gameState.level + 1}`;
+      
+      document.getElementById('streak-count').textContent = gameState.streak;
+    }
+    
+    function showLevelUp(newLevel) {
+      document.getElementById('new-level').textContent = newLevel;
+      document.getElementById('new-level-text').textContent = newLevel;
+      document.getElementById('new-level-title').textContent = getLevelTitle(newLevel);
+      
+      // Create confetti
+      createConfetti();
+      
+      // Add bonus XP
+      addXP(100, '(Level Up Bonus)');
+      
+      document.getElementById('levelup-modal').classList.remove('hidden');
+    }
+    
+    function closeLevelUp() {
+      document.getElementById('levelup-modal').classList.add('hidden');
+      document.getElementById('levelup-confetti').innerHTML = '';
+    }
+    
+    function createConfetti() {
+      const container = document.getElementById('levelup-confetti');
+      const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bd6', '#ffa500'];
+      
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.top = '100%';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        container.appendChild(confetti);
+      }
+    }
+    
+    // Achievement System
+    function checkAchievements() {
+      achievementsDB.forEach(achievement => {
+        if (!gameState.achievements.has(achievement.id) && achievement.condition()) {
+          unlockAchievement(achievement);
+        }
+      });
+    }
+    
+    function unlockAchievement(achievement) {
+      gameState.achievements.add(achievement.id);
+      addXP(achievement.xp, `(${achievement.name})`);
+      
+      document.getElementById('unlocked-achievement-icon').textContent = achievement.icon;
+      document.getElementById('unlocked-achievement-name').textContent = achievement.name;
+      document.getElementById('unlocked-achievement-desc').textContent = achievement.desc;
+      document.getElementById('unlocked-achievement-xp').textContent = achievement.xp;
+      
+      document.getElementById('achievement-unlock-modal').classList.remove('hidden');
+      
+      saveGameState();
+    }
+    
+    function closeAchievementUnlock() {
+      document.getElementById('achievement-unlock-modal').classList.add('hidden');
+    }
+    
+    function renderAchievements() {
+      const categories = {
+        legendary: document.getElementById('legendary-achievements'),
+        epic: document.getElementById('epic-achievements'),
+        rare: document.getElementById('rare-achievements'),
+        common: document.getElementById('common-achievements')
+      };
+      
+      Object.values(categories).forEach(el => el.innerHTML = '');
+      
+      let unlockedCount = 0;
+      
+      achievementsDB.forEach(achievement => {
+        const isUnlocked = gameState.achievements.has(achievement.id);
+        if (isUnlocked) unlockedCount++;
+        
+        const badge = document.createElement('div');
+        badge.className = `achievement-badge ${achievement.rarity} ${isUnlocked ? 'unlocked' : 'locked'} bg-slate-700/50 rounded-xl p-4 text-center`;
+        badge.innerHTML = `
+          <div class="text-4xl mb-2 ${isUnlocked ? '' : 'grayscale opacity-50'}">${achievement.icon}</div>
+          <h4 class="font-bold text-white text-sm ${isUnlocked ? '' : 'text-slate-500'}">${achievement.name}</h4>
+          <p class="text-xs text-slate-400 mt-1">${achievement.desc}</p>
+          <p class="text-yellow-400 text-xs mt-2">+${achievement.xp} XP</p>
+        `;
+        
+        if (categories[achievement.rarity]) {
+          categories[achievement.rarity].appendChild(badge);
+        }
+      });
+      
+      document.getElementById('achievements-count').textContent = `${unlockedCount} / ${achievementsDB.length} Terbuka`;
+    }
+    
+    // Streak System
+    function updateStreak() {
+      const today = getTodayDate();
+      const lastActive = gameState.lastActiveDate;
+      
+      if (lastActive !== today) {
+        if (lastActive) {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
+          
+          if (lastActive === yesterdayStr) {
+            gameState.streak++;
+          } else {
+            gameState.streak = 1;
+          }
+        } else {
+          gameState.streak = 1;
+        }
+        
+        gameState.lastActiveDate = today;
+        saveGameState();
+      }
+      
+      updateXPDisplay();
+    }
+    
+    // Daily Challenges
+    function initDailyChallenges() {
+      const today = getTodayDate();
+      
+      if (gameState.dailyChallenges.date !== today) {
+        gameState.dailyChallenges = {
+          date: today,
+          completed: [false, false, false]
+        };
+        saveGameState();
+      }
+      
+      updateDailyChallengesUI();
+    }
+    
+    function updateDailyChallengesUI() {
+      const completed = gameState.dailyChallenges.completed.filter(c => c).length;
+      const total = gameState.dailyChallenges.completed.length;
+      
+      document.getElementById('daily-banner-progress').style.width = (completed / total * 100) + '%';
+      document.getElementById('daily-banner-count').textContent = `${completed}/${total}`;
+      
+      if (completed === total) {
+        document.getElementById('daily-banner-text').textContent = 'Semua daily challenge selesai! 🎉';
+        document.getElementById('daily-banner').classList.add('completed');
+      } else {
+        document.getElementById('daily-banner-text').textContent = 'Selesaikan 3 tantangan hari ini!';
+        document.getElementById('daily-banner').classList.remove('completed');
+      }
+    }
+    
+    function showDailyChallenges() {
+      const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('daily-date').textContent = today;
+      
+      const completed = gameState.dailyChallenges.completed.filter(c => c).length;
+      document.getElementById('daily-progress-text').textContent = `${completed}/3`;
+      document.getElementById('daily-progress-fill').style.width = (completed / 3 * 100) + '%';
+      
+      if (gameState.streak >= 7) {
+        document.getElementById('daily-streak-info').textContent = `🔥 Streak ${gameState.streak} hari - Bonus aktif!`;
+      } else {
+        document.getElementById('daily-streak-info').textContent = `🔥 Streak ${gameState.streak} hari - Terus belajar!`;
+      }
+      
+      const challengesHtml = dailyChallengesDB.map((challenge, idx) => {
+        const isCompleted = gameState.dailyChallenges.completed[idx];
+        return `
+          <div class="daily-challenge-card rounded-xl p-4 ${isCompleted ? 'completed' : ''}">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 ${isCompleted ? 'bg-green-500' : 'bg-slate-600'} rounded-lg flex items-center justify-center">
+                  <span class="text-xl">${isCompleted ? '✅' : '⭕'}</span>
+                </div>
+                <div>
+                  <h4 class="font-bold text-white">${challenge.desc}</h4>
+                  <p class="text-slate-400 text-sm">+${challenge.xp} XP</p>
+                </div>
+              </div>
+              <button onclick="completeDailyChallenge(${idx})" ${isCompleted ? 'disabled' : ''} 
+                class="px-4 py-2 ${isCompleted ? 'bg-green-600' : 'bg-indigo-600 hover:bg-indigo-500'} rounded-lg font-medium transition-colors ${isCompleted ? '' : 'text-white'}">
+                ${isCompleted ? 'Selesai' : 'Kerjakan'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('daily-challenges-list').innerHTML = challengesHtml;
+      document.getElementById('daily-challenges-modal').classList.remove('hidden');
+    }
+    
+    function completeDailyChallenge(idx) {
+      if (!gameState.dailyChallenges.completed[idx]) {
+        gameState.dailyChallenges.completed[idx] = true;
+        const challenge = dailyChallengesDB[idx];
+        addXP(challenge.xp, '(Daily)');
+        saveGameState();
+        showDailyChallenges();
+        updateDailyChallengesUI();
+      }
+    }
+    
+    function closeDailyChallenges() {
+      document.getElementById('daily-challenges-modal').classList.add('hidden');
+    }
+    
+    // Leaderboard
+    function showLeaderboard() {
+      // Add current user to leaderboard
+      const userEntry = { name: gameState.userName, xp: gameState.xp, level: gameState.level };
+      const allEntries = [...leaderboardData, userEntry].sort((a, b) => b.xp - a.xp);
+      
+      const userRank = allEntries.findIndex(e => e.name === gameState.userName) + 1;
+      
+      const leaderboardHtml = allEntries.slice(0, 10).map((entry, idx) => {
+        const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'bg-slate-700';
+        const rankEmoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`;
+        
+        return `
+          <div class="flex items-center justify-between p-4 ${rankClass} rounded-xl ${entry.name === gameState.userName ? 'ring-2 ring-indigo-500' : ''}">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">${rankEmoji}</span>
+              <div>
+                <p class="font-bold text-white">${entry.name}</p>
+                <p class="text-slate-400 text-sm">Level ${entry.level}</p>
+              </div>
+            </div>
+            <span class="text-yellow-400 font-bold">${entry.xp.toLocaleString()} XP</span>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('leaderboard-list').innerHTML = leaderboardHtml;
+      
+      document.getElementById('user-rank-number').textContent = userRank;
+      document.getElementById('user-rank-name').textContent = gameState.userName;
+      document.getElementById('user-rank-xp').textContent = gameState.xp.toLocaleString() + ' XP';
+      document.getElementById('user-rank-level').textContent = 'Level ' + gameState.level;
+      document.getElementById('user-rank-title').textContent = getLevelTitle(gameState.level);
+      
+      const rankBadge = document.getElementById('user-rank-badge');
+      rankBadge.className = `w-12 h-12 rounded-xl flex items-center justify-center ${userRank === 1 ? 'rank-1' : userRank === 2 ? 'rank-2' : userRank === 3 ? 'rank-3' : 'bg-slate-600'}`;
+      
+      document.getElementById('leaderboard-modal').classList.remove('hidden');
+    }
+    
+    function closeLeaderboard() {
+      document.getElementById('leaderboard-modal').classList.add('hidden');
+    }
+    
+    // Profile
+    function showProfile() {
+      document.getElementById('profile-level').textContent = gameState.level;
+      document.getElementById('profile-name').textContent = gameState.userName;
+      document.getElementById('profile-title').textContent = getLevelTitle(gameState.level);
+      document.getElementById('profile-xp').textContent = gameState.xp.toLocaleString();
+      document.getElementById('profile-streak').textContent = gameState.streak;
+      document.getElementById('profile-lessons').textContent = gameState.completedLessons.size;
+      document.getElementById('profile-quizzes').textContent = gameState.completedQuizzes;
+      document.getElementById('profile-avg-score').textContent = gameState.completedQuizzes > 0 
+        ? Math.round(gameState.totalQuizScore / gameState.completedQuizzes) + '%' 
+        : '0%';
+      document.getElementById('profile-challenges').textContent = gameState.completedChallenges;
+      document.getElementById('profile-achievements').textContent = `${gameState.achievements.size}/${achievementsDB.length}`;
+      
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+    
+    function closeProfile() {
+      document.getElementById('profile-modal').classList.add('hidden');
+    }
+    
+    function closeAchievements() {
+      document.getElementById('achievements-modal').classList.add('hidden');
+    }
+    
+    function showAchievements() {
+      renderAchievements();
+      document.getElementById('achievements-modal').classList.remove('hidden');
+    }
+    
+    // Progress Tracking
+    function updateLessonProgress() {
+      const categories = {
+        dasar: ['struktur', 'sintaks', 'tipe_data', 'input_output'],
+        kontrol: ['if_else', 'switch', 'for_loop', 'while_loop'],
+        struktur: ['array', 'nested_loop']
+      };
+      
+      Object.entries(categories).forEach(([cat, lessons]) => {
+        const completed = lessons.filter(l => gameState.completedLessons.has(l)).length;
+        const total = lessons.length;
+        const percent = (completed / total * 100);
+        
+        document.getElementById(`progress-${cat}`).style.width = percent + '%';
+        document.getElementById(`progress-${cat}-text`).textContent = `${completed}/${total}`;
+        
+        // Update badges
+        lessons.forEach(lesson => {
+          const badge = document.getElementById(`badge-${lesson}`);
+          if (badge && gameState.completedLessons.has(lesson)) {
+            badge.textContent = '✅';
+          }
+        });
+      });
+    }
+    
+    // Save/Load System
+    function saveGameState() {
+      const stateToSave = {
+        xp: gameState.xp,
+        level: gameState.level,
+        streak: gameState.streak,
+        lastActiveDate: gameState.lastActiveDate,
+        completedLessons: Array.from(gameState.completedLessons),
+        completedQuizzes: gameState.completedQuizzes,
+        totalQuizScore: gameState.totalQuizScore,
+        completedChallenges: gameState.completedChallenges,
+        achievements: Array.from(gameState.achievements),
+        dailyChallenges: gameState.dailyChallenges,
+        userName: gameState.userName
+      };
+      localStorage.setItem('belajarC_gamification', JSON.stringify(stateToSave));
+    }
+    
+    function loadGameState() {
+      const saved = localStorage.getItem('belajarC_gamification');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        gameState.xp = parsed.xp || 0;
+        gameState.level = parsed.level || 1;
+        gameState.streak = parsed.streak || 0;
+        gameState.lastActiveDate = parsed.lastActiveDate;
+        gameState.completedLessons = new Set(parsed.completedLessons || []);
+        gameState.completedQuizzes = parsed.completedQuizzes || 0;
+        gameState.totalQuizScore = parsed.totalQuizScore || 0;
+        gameState.completedChallenges = parsed.completedChallenges || 0;
+        gameState.achievements = new Set(parsed.achievements || []);
+        gameState.dailyChallenges = parsed.dailyChallenges || { date: null, completed: [false, false, false] };
+        gameState.userName = parsed.userName || 'Pembelajar C';
+      }
+      
+      updateXPDisplay();
+      updateLessonProgress();
+      initDailyChallenges();
+      checkAchievements();
+    }
+    
+    // ============================================
+    // ORIGINAL LESSON CONTENT
+    // ============================================
+    
+    const lessons = {
+      struktur: {
+        title: '🏗️ Struktur Bahasa C',
+        xpReward: 50,
+        theory: `
+          <h4 class="font-bold text-rose-300 mb-3">📋 Bagian-Bagian Program C</h4>
+          <p class="text-slate-300 text-sm mb-4">Setiap program C memiliki struktur dasar yang terdiri dari beberapa bagian penting. Memahami struktur ini adalah fondasi untuk membuat program C yang benar.</p>
+          
+          <h4 class="font-bold text-rose-300 mb-2 mt-4">1️⃣ Header/Library (#include)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Header adalah perintah untuk mengimpor library (perpustakaan) ke dalam program. Library berisi fungsi-fungsi siap pakai yang bisa kita gunakan.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📚 <span class="text-rose-400 font-bold">#include &lt;stdio.h&gt;</span> → Library untuk input/output (printf, scanf)</li>
+            <li>📚 <span class="text-rose-400 font-bold">#include &lt;math.h&gt;</span> → Library untuk operasi matematika (sqrt, pow, abs)</li>
+            <li>📚 <span class="text-rose-400 font-bold">#include &lt;string.h&gt;</span> → Library untuk operasi string</li>
+          </ul>
+          <p class="text-slate-300 text-xs bg-rose-900/30 p-2 rounded border border-rose-700 mt-2">💡 Angle bracket &lt; &gt; untuk library standar, tanda kutip untuk file lokal</p>
+          
+          <h4 class="font-bold text-rose-300 mb-2 mt-4">2️⃣ Fungsi Main (int main)</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Main adalah fungsi utama di mana program mulai dijalankan. Setiap program C HARUS memiliki fungsi main sebagai entry point.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>🔹 <span class="text-rose-400 font-bold">int</span> → Tipe return (nilai yang dikembalikan fungsi)</li>
+            <li>🔹 <span class="text-rose-400 font-bold">main()</span> → Nama fungsi utama (selalu "main")</li>
+            <li>🔹 <span class="text-rose-400 font-bold">{ ... }</span> → Kurung kurawal untuk blok kode</li>
+          </ul>
+          
+          <h4 class="font-bold text-rose-300 mb-2 mt-4">3️⃣ Return Statement</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Return mengakhiri fungsi dan mengembalikan nilai. Return 0 menunjukkan program berhasil.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>✅ <span class="text-green-400 font-bold">return 0;</span> → Program berhasil (exit code 0)</li>
+            <li>❌ <span class="text-red-400 font-bold">return 1;</span> → Program gagal/error</li>
+          </ul>
+          
+          <h4 class="font-bold text-rose-300 mb-2 mt-4">4️⃣ Komentar</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-2">Komentar adalah teks yang TIDAK dijalankan oleh kompiler, hanya untuk dokumentasi.</p>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>📝 <span class="text-rose-400 font-bold">// Komentar satu baris</span></li>
+            <li>📝 <span class="text-rose-400 font-bold">/* Komentar multi baris */</span></li>
+          </ul>
+        `,
+        example: `#include <stdio.h>
+
+int main() {
+    printf("Halo, Dunia!\\n");
+    
+    return 0;
+}`,
+        exampleOutput: `Halo, Dunia!`,
+        practices: [
+          { task: 'Buat program C dasar dengan header stdio.h', expected: 'Halo', hints: '💡 #include <stdio.h>\n💡 int main() {\n💡   printf("Halo\\n");\n💡   return 0;\n💡 }' },
+          { task: 'Tampilkan 2 baris teks menggunakan printf dua kali', expected: 'Baris 1\nBaris 2', hints: '💡 printf("Baris 1\\n");\n💡 printf("Baris 2\\n");' },
+          { task: 'Buat program dengan komentar satu baris', expected: 'C adalah bahasa pemrograman', hints: '💡 // Ini adalah komentar\n💡 printf("C adalah bahasa pemrograman\\n");' },
+          { task: 'Buat program yang menampilkan nama Anda', expected: 'Nama: Andi', hints: '💡 printf("Nama: Andi\\n");' },
+          { task: 'Buat program dengan struktur lengkap C dan tampilkan "Program Mulai"', expected: 'Program Mulai', hints: '💡 Gunakan #include, main(), printf(), dan return' }
+        ]
+      },
+      sintaks: {
+        title: '✍️ Sintaks & Variabel',
+        xpReward: 50,
+        theory: `
+          <h4 class="font-bold text-fuchsia-300 mb-3">🎯 Apa itu Variabel?</h4>
+          <p class="text-slate-300 text-sm mb-4">Variabel adalah tempat penyimpanan data di memori komputer. Seperti kotak yang menyimpan nilai, dapat kita baca dan ubah sesuai kebutuhan.</p>
+          
+          <h4 class="font-bold text-fuchsia-300 mb-2 mt-4">📋 Cara Deklarasi Variabel</h4>
+          <p class="text-slate-400 text-xs mb-2">Sintaks dasar: <span class="text-fuchsia-400 font-bold">tipe_data nama_variabel = nilai;</span></p>
+          <div class="text-slate-300 text-xs bg-fuchsia-900/30 p-2 rounded border border-fuchsia-700 mb-2">
+            <p class="font-bold">Contoh praktis:</p>
+            <ul class="mt-1 space-y-1 ml-2">
+              <li>✅ int umur = 20;</li>
+              <li>✅ float tinggi = 1.75;</li>
+              <li>✅ char huruf = 'A';</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-bold text-fuchsia-300 mb-2 mt-4">🏷️ Aturan Penamaan Variabel</h4>
+          <ul class="text-slate-400 text-xs space-y-1 ml-2">
+            <li>✅ Boleh dimulai dengan huruf atau underscore: age, _age, Age123</li>
+            <li>✅ Boleh mengandung angka: umur2024, nilai123</li>
+            <li>❌ TIDAK boleh dimulai dengan angka: 1umur, 2nama</li>
+            <li>❌ TIDAK boleh mengandung spasi: umur saya, nama ku</li>
+            <li>❌ TIDAK boleh menggunakan simbol khusus: nama@, umur#</li>
+          </ul>
+          
+          <h4 class="font-bold text-fuchsia-300 mb-2 mt-4">🔄 Inisialisasi Variabel</h4>
+          <p class="text-slate-400 text-xs leading-relaxed">Inisialisasi adalah memberikan nilai awal saat dek
